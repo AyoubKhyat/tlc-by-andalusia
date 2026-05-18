@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id               String   @id @default(cuid())
+  studentId        String   @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  phone            String?
+  parentPhone      String?
+  email            String?
+  programId        String?
+  level            String?
+  groupId          String?
+  status           String   @default("active")
+  registrationDate DateTime @default(now())
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  program     Program?     @relation(fields: [programId], references: [id])
+  group       Group?       @relation(fields: [groupId], references: [id])
+  examResults ExamResult[]
+}
+
+model Program {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  ageGroup    String
+  duration    String
+  levels      String
+  objectives  String
+  icon        String?
+  image       String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  students     Student[]
+  groups       Group[]
+  examSessions ExamSession[]
+}
+
+model Group {
+  id        String   @id @default(cuid())
+  name      String
+  programId String
+  level     String?
+  schedule  String?
+  teacher   String?
+  capacity  Int      @default(15)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  program      Program       @relation(fields: [programId], references: [id])
+  students     Student[]
+  examSessions ExamSession[]
+}
+
+model ExamSession {
+  id        String   @id @default(cuid())
+  title     String
+  programId String
+  groupId   String?
+  level     String?
+  examDate  DateTime
+  teacher   String?
+  status    String   @default("upcoming")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  program Program      @relation(fields: [programId], references: [id])
+  group   Group?       @relation(fields: [groupId], references: [id])
+  results ExamResult[]
+}
+
+model ExamResult {
+  id                   String   @id @default(cuid())
+  studentId            String
+  examSessionId        String
+  score                Float
+  maxScore             Float    @default(100)
+  percentage           Float
+  status               String   @default("pending")
+  teacherComment       String?
+  certificateAvailable Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  student     Student     @relation(fields: [studentId], references: [id])
+  examSession ExamSession @relation(fields: [examSessionId], references: [id])
+}
+
+model Registration {
+  id            String   @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String?
+  phone         String
+  parentName    String?
+  parentPhone   String?
+  programInterest String?
+  message       String?
+  status        String   @default("new")
+  adminNotes    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  content   String
+  rating    Int      @default(5)
+  image     String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  category  String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("text")
+}
