@@ -141,7 +141,7 @@ export default function GalleryPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -150,8 +150,8 @@ export default function GalleryPage() {
     <div>
       <motion.div className="flex items-center justify-between mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gallery</h1>
-          <p className="text-gray-500 text-sm mt-1">{images.length} images</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Gallery</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{images.length} images</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-burgundy)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
           <Plus size={18} />
@@ -164,7 +164,7 @@ export default function GalleryPage() {
           <Filter size={16} className="text-gray-400" />
           <button
             onClick={() => setFilterCategory("all")}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${filterCategory === "all" ? "bg-[var(--color-burgundy)] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+            className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${filterCategory === "all" ? "bg-[var(--color-burgundy)] text-white" : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700"}`}
           >
             All
           </button>
@@ -172,7 +172,7 @@ export default function GalleryPage() {
             <button
               key={cat}
               onClick={() => setFilterCategory(cat)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors capitalize ${filterCategory === cat ? "bg-[var(--color-burgundy)] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+              className={`px-3 py-1.5 text-sm rounded-lg transition-colors capitalize ${filterCategory === cat ? "bg-[var(--color-burgundy)] text-white" : "bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700"}`}
             >
               {cat}
             </button>
@@ -181,15 +181,15 @@ export default function GalleryPage() {
       )}
 
       {filteredImages.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No images found. Add your first gallery image.</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No images found. Add your first gallery image.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredImages.map((img, idx) => (
             <motion.div
               key={img.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden group hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden group hover:shadow-md transition-shadow"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.03 }}
@@ -218,7 +218,7 @@ export default function GalleryPage() {
                 </div>
               </div>
               <div className="p-3">
-                {img.caption && <p className="text-sm text-gray-700 truncate">{img.caption}</p>}
+                {img.caption && <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{img.caption}</p>}
                 {img.category && <p className="text-xs text-gray-400 mt-0.5 capitalize">{img.category}</p>}
                 {!img.caption && !img.category && <p className="text-xs text-gray-400 italic">No caption</p>}
               </div>
@@ -230,11 +230,11 @@ export default function GalleryPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={selected ? "Edit Image" : "Add Image"} size="md">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Image URL *</label>
-            <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="https://..." required />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL *</label>
+            <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="https://..." required />
           </div>
           {form.url && (
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="border border-gray-200 dark:border-slate-700 rounded-lg overflow-hidden">
               <img
                 src={form.url}
                 alt="Preview"
@@ -246,25 +246,25 @@ export default function GalleryPage() {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Caption</label>
-            <input type="text" value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Caption</label>
+            <input type="text" value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="e.g. classroom, events" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+              <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="e.g. classroom, events" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
-              <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort Order</label>
+              <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="imageActive" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="rounded border-gray-300" />
-            <label htmlFor="imageActive" className="text-sm text-gray-700">Active</label>
+            <input type="checkbox" id="imageActive" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="rounded border-gray-300 dark:border-slate-600" />
+            <label htmlFor="imageActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-burgundy)] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 flex items-center gap-2">
               {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {selected ? "Update" : "Add"}

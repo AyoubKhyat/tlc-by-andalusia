@@ -163,7 +163,7 @@ export default function AdminBlogPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -270,7 +270,7 @@ export default function AdminBlogPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Title *
               </label>
               <input
@@ -282,38 +282,38 @@ export default function AdminBlogPage() {
                     ...(!selected && { slug: generateSlug(e.target.value) }),
                   });
                 }}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
                 placeholder="Post title"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Slug *
               </label>
               <input
                 value={form.slug}
                 onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
                 placeholder="post-slug"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Excerpt *
             </label>
             <textarea
               value={form.excerpt}
               onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
               rows={2}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm resize-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm resize-none"
               placeholder="Short description for the post card..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Content *
             </label>
             <RichTextEditor
@@ -326,24 +326,24 @@ export default function AdminBlogPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Author *
               </label>
               <input
                 value={form.author}
                 onChange={(e) => setForm({ ...form, author: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
                 placeholder="Author name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Category
               </label>
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm bg-white"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
               >
                 {categories.map((cat) => (
                   <option key={cat.value} value={cat.value}>{cat.label}</option>
@@ -354,24 +354,24 @@ export default function AdminBlogPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Cover Image URL
               </label>
               <input
                 value={form.coverImage}
                 onChange={(e) => setForm({ ...form, coverImage: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
                 placeholder="https://..."
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Tags
               </label>
               <input
                 value={form.tags}
                 onChange={(e) => setForm({ ...form, tags: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white focus:border-[var(--color-burgundy)] focus:ring-2 focus:ring-[var(--color-burgundy)]/20 outline-none text-sm"
                 placeholder="tag1, tag2, tag3"
               />
             </div>
@@ -382,7 +382,7 @@ export default function AdminBlogPage() {
               type="checkbox"
               checked={form.published}
               onChange={(e) => setForm({ ...form, published: e.target.checked })}
-              className="w-4 h-4 rounded border-gray-300 text-[var(--color-burgundy)] focus:ring-[var(--color-burgundy)]"
+              className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-[var(--color-burgundy)] focus:ring-[var(--color-burgundy)]"
             />
             <div className="flex items-center gap-2 text-sm">
               {form.published ? (
@@ -390,16 +390,16 @@ export default function AdminBlogPage() {
               ) : (
                 <EyeOff className="w-4 h-4 text-gray-400" />
               )}
-              <span className="font-medium text-gray-700">
+              <span className="font-medium text-gray-700 dark:text-gray-300">
                 {form.published ? "Published" : "Draft"}
               </span>
             </div>
           </label>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-slate-700">
             <button
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               Cancel
             </button>

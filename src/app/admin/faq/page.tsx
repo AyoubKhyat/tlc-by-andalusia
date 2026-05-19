@@ -129,7 +129,7 @@ export default function FAQPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -138,8 +138,8 @@ export default function FAQPage() {
     <div>
       <motion.div className="flex items-center justify-between mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">FAQ</h1>
-          <p className="text-gray-500 text-sm mt-1">{faqs.length} questions</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">FAQ</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{faqs.length} questions</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-burgundy)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
           <Plus size={18} />
@@ -148,21 +148,21 @@ export default function FAQPage() {
       </motion.div>
 
       {faqs.length === 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-          <p className="text-gray-500">No FAQs yet. Add your first question.</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">No FAQs yet. Add your first question.</p>
         </div>
       ) : (
         <div className="space-y-2">
           {faqs.map((faq, idx) => (
             <motion.div
               key={faq.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.03 }}
             >
               <div
-                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                 onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -170,11 +170,11 @@ export default function FAQPage() {
                     size={18}
                     className={`text-gray-400 flex-shrink-0 transition-transform ${expandedId === faq.id ? "rotate-180" : ""}`}
                   />
-                  <p className="font-medium text-gray-900 text-sm truncate">{faq.question}</p>
+                  <p className="font-medium text-gray-900 dark:text-white text-sm truncate">{faq.question}</p>
                 </div>
                 <div className="flex items-center gap-2 ml-3 flex-shrink-0">
                   {faq.category && (
-                    <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded capitalize">{faq.category}</span>
+                    <span className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded capitalize">{faq.category}</span>
                   )}
                   <StatusBadge status={faq.active ? "active" : "inactive"} />
                   <button
@@ -201,7 +201,7 @@ export default function FAQPage() {
                     className="overflow-hidden"
                   >
                     <div className="px-5 pb-4 pl-11">
-                      <p className="text-sm text-gray-600 whitespace-pre-wrap">{faq.answer}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{faq.answer}</p>
                     </div>
                   </motion.div>
                 )}
@@ -214,29 +214,29 @@ export default function FAQPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={selected ? "Edit FAQ" : "New FAQ"} size="md">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Question *</label>
-            <input type="text" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Question *</label>
+            <input type="text" value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Answer *</label>
-            <textarea value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} rows={5} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none" required />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Answer *</label>
+            <textarea value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} rows={5} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none" required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-              <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="e.g. general, enrollment" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+              <input type="text" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" placeholder="e.g. general, enrollment" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
-              <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Sort Order</label>
+              <input type="number" value={form.sortOrder} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" />
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="faqActive" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="rounded border-gray-300" />
-            <label htmlFor="faqActive" className="text-sm text-gray-700">Active</label>
+            <input type="checkbox" id="faqActive" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="rounded border-gray-300 dark:border-slate-600" />
+            <label htmlFor="faqActive" className="text-sm text-gray-700 dark:text-gray-300">Active</label>
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-burgundy)] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 flex items-center gap-2">
               {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {selected ? "Update" : "Create"}
