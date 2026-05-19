@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
+import BackToTop from "@/components/ui/BackToTop";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -57,6 +58,7 @@ export default function PublicLayout({
       <main id="main-content" className="flex-1">{children}</main>
       <Footer />
       <CookieConsent />
+      <BackToTop />
     </>
   );
 }

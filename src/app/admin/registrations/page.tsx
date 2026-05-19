@@ -10,6 +10,7 @@ import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Modal from "@/components/admin/Modal";
 import ExportButtons from "@/components/admin/ExportButtons";
+import BulkActionBar from "@/components/admin/BulkActionBar";
 
 interface Registration {
   id: string;
@@ -43,6 +44,9 @@ export default function RegistrationsPage() {
   const [deleting, setDeleting] = useState(false);
   const [adminNotes, setAdminNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchRegistrations = useCallback(async () => {
     try {
@@ -120,6 +124,42 @@ export default function RegistrationsPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      const res = await fetch("/api/admin/registrations/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", ids: [...selectedIds] }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${selectedIds.size} registration(s) deleted`);
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      fetchRegistrations();
+    } catch {
+      toast.error("Failed to delete registrations");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    try {
+      const res = await fetch("/api/admin/registrations/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "status", ids: [...selectedIds], status: newStatus }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${selectedIds.size} registration(s) updated`);
+      setSelectedIds(new Set());
+      fetchRegistrations();
+    } catch {
+      toast.error("Failed to update statuses");
+    }
+  };
+
   const columns: Column<Registration>[] = [
     {
       key: "firstName",
@@ -192,12 +232,23 @@ export default function RegistrationsPage() {
         />
       </motion.div>
 
+      <BulkActionBar
+        selectedCount={selectedIds.size}
+        onDelete={() => setBulkDeleteOpen(true)}
+        onStatusChange={handleBulkStatusChange}
+        onClear={() => setSelectedIds(new Set())}
+        statusOptions={statusOptions}
+      />
+
       <motion.div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <DataTable
           columns={columns}
           data={registrations}
           searchKeys={["firstName", "lastName", "email", "phone", "programInterest"]}
           searchPlaceholder="Search registrations..."
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           actions={(item) => {
             const r = item as unknown as Registration;
             return (
@@ -286,6 +337,8 @@ export default function RegistrationsPage() {
       </Modal>
 
       <ConfirmDialog isOpen={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} onConfirm={handleDelete} title="Delete Registration" message={`Delete registration from ${selected?.firstName} ${selected?.lastName}?`} loading={deleting} />
+
+      <ConfirmDialog isOpen={bulkDeleteOpen} onClose={() => setBulkDeleteOpen(false)} onConfirm={handleBulkDelete} title="Delete Selected Registrations" message={`Are you sure you want to delete ${selectedIds.size} registration(s)? This action cannot be undone.`} loading={bulkDeleting} />
     </div>
   );
 }

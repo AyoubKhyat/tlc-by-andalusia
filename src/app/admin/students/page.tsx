@@ -9,6 +9,7 @@ import Modal from "@/components/admin/Modal";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import StatusBadge from "@/components/admin/StatusBadge";
 import ExportButtons from "@/components/admin/ExportButtons";
+import BulkActionBar from "@/components/admin/BulkActionBar";
 
 interface Student {
   id: string;
@@ -64,6 +65,9 @@ export default function StudentsPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -178,6 +182,47 @@ export default function StudentsPage() {
     }
   };
 
+  const studentStatusOptions = [
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+  ];
+
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      const res = await fetch("/api/admin/students/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", ids: [...selectedIds] }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${selectedIds.size} student(s) deleted`);
+      setSelectedIds(new Set());
+      setBulkDeleteOpen(false);
+      fetchData();
+    } catch {
+      toast.error("Failed to delete students");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    try {
+      const res = await fetch("/api/admin/students/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "status", ids: [...selectedIds], status: newStatus }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`${selectedIds.size} student(s) updated`);
+      setSelectedIds(new Set());
+      fetchData();
+    } catch {
+      toast.error("Failed to update statuses");
+    }
+  };
+
   const filteredGroups = form.programId
     ? groups.filter((g) => g.programId === form.programId)
     : groups;
@@ -254,6 +299,14 @@ export default function StudentsPage() {
         </div>
       </motion.div>
 
+      <BulkActionBar
+        selectedCount={selectedIds.size}
+        onDelete={() => setBulkDeleteOpen(true)}
+        onStatusChange={handleBulkStatusChange}
+        onClear={() => setSelectedIds(new Set())}
+        statusOptions={studentStatusOptions}
+      />
+
       <motion.div
         className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
         initial={{ opacity: 0, y: 20 }}
@@ -265,6 +318,9 @@ export default function StudentsPage() {
           data={students}
           searchKeys={["firstName", "lastName", "studentId", "email"]}
           searchPlaceholder="Search students..."
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           actions={(item) => {
             const s = item as unknown as Student;
             return (
@@ -356,6 +412,15 @@ export default function StudentsPage() {
         title="Delete Student"
         message={`Are you sure you want to delete ${selectedStudent?.firstName} ${selectedStudent?.lastName}? This action cannot be undone.`}
         loading={deleting}
+      />
+
+      <ConfirmDialog
+        isOpen={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete Selected Students"
+        message={`Are you sure you want to delete ${selectedIds.size} student(s)? This action cannot be undone.`}
+        loading={bulkDeleting}
       />
     </div>
   );

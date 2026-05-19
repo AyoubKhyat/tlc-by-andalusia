@@ -21,6 +21,10 @@ interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
   filterElement?: React.ReactNode;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onSelectionChange?: (ids: Set<string>) => void;
+  idKey?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +39,10 @@ export default function DataTable<T extends Record<string, any>>({
   onRowClick,
   emptyMessage = "No data found",
   filterElement,
+  selectable = false,
+  selectedIds,
+  onSelectionChange,
+  idKey = "id",
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -79,6 +87,37 @@ export default function DataTable<T extends Record<string, any>>({
     }
   };
 
+  const allFilteredSelected =
+    selectable &&
+    filtered.length > 0 &&
+    selectedIds != null &&
+    filtered.every((item) => selectedIds.has(String(item[idKey])));
+
+  const toggleAll = () => {
+    if (!onSelectionChange || !selectedIds) return;
+    if (allFilteredSelected) {
+      const next = new Set(selectedIds);
+      filtered.forEach((item) => next.delete(String(item[idKey])));
+      onSelectionChange(next);
+    } else {
+      const next = new Set(selectedIds);
+      filtered.forEach((item) => next.add(String(item[idKey])));
+      onSelectionChange(next);
+    }
+  };
+
+  const toggleOne = (item: T) => {
+    if (!onSelectionChange || !selectedIds) return;
+    const id = String(item[idKey]);
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    onSelectionChange(next);
+  };
+
   return (
     <div>
       {(searchable || filterElement) && (
@@ -106,6 +145,16 @@ export default function DataTable<T extends Record<string, any>>({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
+              {selectable && (
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={!!allFilteredSelected}
+                    onChange={toggleAll}
+                    className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-[var(--color-burgundy)] focus:ring-[var(--color-burgundy)] accent-[var(--color-burgundy)] cursor-pointer"
+                  />
+                </th>
+              )}
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -126,17 +175,29 @@ export default function DataTable<T extends Record<string, any>>({
           <tbody>
             {paginated.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={columns.length + (actions ? 1 : 0) + (selectable ? 1 : 0)} className="px-4 py-12 text-center text-gray-500 dark:text-gray-400">
                   {emptyMessage}
                 </td>
               </tr>
             ) : (
-              paginated.map((item, idx) => (
+              paginated.map((item, idx) => {
+                const isSelected = selectable && selectedIds?.has(String(item[idKey]));
+                return (
                 <tr
                   key={(item.id as string | number) ?? idx}
-                  className={`border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
+                  className={`border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${onRowClick ? "cursor-pointer" : ""} ${isSelected ? "bg-[var(--color-burgundy)]/5 dark:bg-[var(--color-burgundy)]/10" : ""}`}
                   onClick={() => onRowClick?.(item)}
                 >
+                  {selectable && (
+                    <td className="px-4 py-3 w-10" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={!!isSelected}
+                        onChange={() => toggleOne(item)}
+                        className="w-4 h-4 rounded border-gray-300 dark:border-slate-600 text-[var(--color-burgundy)] focus:ring-[var(--color-burgundy)] accent-[var(--color-burgundy)] cursor-pointer"
+                      />
+                    </td>
+                  )}
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-3 text-gray-700 dark:text-gray-300">
                       {col.render ? col.render(item) : (item[col.key] != null ? String(item[col.key]) : "—")}
@@ -148,7 +209,8 @@ export default function DataTable<T extends Record<string, any>>({
                     </td>
                   )}
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

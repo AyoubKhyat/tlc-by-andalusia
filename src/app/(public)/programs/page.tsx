@@ -16,9 +16,13 @@ import {
   BarChart3,
   Target,
   ArrowRight,
+  LayoutGrid,
+  TableProperties,
 } from "lucide-react";
+import ComparisonTable from "@/components/programs/ComparisonTable";
 
 type Category = "all" | "english" | "exam" | "languages";
+type ViewMode = "grid" | "compare";
 
 interface Program {
   id?: string;
@@ -449,6 +453,7 @@ function ProgramCard({ program, index }: { program: Program; index: number }) {
 
 export default function ProgramsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [programs, setPrograms] = useState<Program[]>(fallbackPrograms);
 
   useEffect(() => {
@@ -473,39 +478,78 @@ export default function ProgramsPage() {
 
       <section className="py-16 lg:py-20 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {categories.map((cat) => (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-12">
+            <div className="flex flex-wrap justify-center gap-3">
+              {categories.map((cat) => (
+                <button
+                  key={cat.key}
+                  onClick={() => setActiveCategory(cat.key)}
+                  className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 ${
+                    activeCategory === cat.key
+                      ? "gradient-burgundy text-white shadow-lg shadow-burgundy/20"
+                      : "bg-cream dark:bg-slate-800 text-navy dark:text-gray-300 hover:bg-burgundy/10 dark:hover:bg-slate-700"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-cream dark:bg-slate-800 border border-gray-200 dark:border-slate-700">
               <button
-                key={cat.key}
-                onClick={() => setActiveCategory(cat.key)}
-                className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 ${
-                  activeCategory === cat.key
-                    ? "gradient-burgundy text-white shadow-lg shadow-burgundy/20"
-                    : "bg-cream dark:bg-slate-800 text-navy dark:text-gray-300 hover:bg-burgundy/10 dark:hover:bg-slate-700"
+                onClick={() => setViewMode("grid")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  viewMode === "grid"
+                    ? "gradient-burgundy text-white shadow-sm"
+                    : "text-navy dark:text-gray-300 hover:bg-white/60 dark:hover:bg-slate-700"
                 }`}
               >
-                {cat.label}
+                <LayoutGrid className="w-4 h-4" />
+                Grid
               </button>
-            ))}
+              <button
+                onClick={() => setViewMode("compare")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                  viewMode === "compare"
+                    ? "gradient-burgundy text-white shadow-sm"
+                    : "text-navy dark:text-gray-300 hover:bg-white/60 dark:hover:bg-slate-700"
+                }`}
+              >
+                <TableProperties className="w-4 h-4" />
+                Compare
+              </button>
+            </div>
           </div>
 
           <AnimatePresence mode="wait">
-            <motion.div
-              key={activeCategory}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {filteredPrograms.map((program, index) => (
-                <ProgramCard
-                  key={program.id || program.title}
-                  program={program}
-                  index={index}
-                />
-              ))}
-            </motion.div>
+            {viewMode === "grid" ? (
+              <motion.div
+                key={`grid-${activeCategory}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {filteredPrograms.map((program, index) => (
+                  <ProgramCard
+                    key={program.id || program.title}
+                    program={program}
+                    index={index}
+                  />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`compare-${activeCategory}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ComparisonTable programs={filteredPrograms} />
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </section>
