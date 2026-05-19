@@ -9,6 +9,7 @@ import DataTable, { Column } from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import StatusBadge from "@/components/admin/StatusBadge";
+import ExportButtons from "@/components/admin/ExportButtons";
 
 interface ExamResult {
   id: string;
@@ -184,8 +185,8 @@ export default function ResultsPage() {
       sortable: true,
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.student.firstName} {r.student.lastName}</p>
-          <p className="text-xs text-gray-500">{r.student.studentId}</p>
+          <p className="font-medium text-gray-900 dark:text-white">{r.student.firstName} {r.student.lastName}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{r.student.studentId}</p>
         </div>
       ),
     },
@@ -194,8 +195,8 @@ export default function ResultsPage() {
       label: "Exam",
       render: (r) => (
         <div>
-          <p className="text-gray-900">{r.examSession.title}</p>
-          <p className="text-xs text-gray-500">
+          <p className="text-gray-900 dark:text-white">{r.examSession.title}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {(() => { try { return format(new Date(r.examSession.examDate), "MMM d, yyyy"); } catch { return "—"; } })()}
           </p>
         </div>
@@ -236,7 +237,7 @@ export default function ResultsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -245,16 +246,34 @@ export default function ResultsPage() {
     <div>
       <motion.div className="flex items-center justify-between mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Exam Results</h1>
-          <p className="text-gray-500 text-sm mt-1">{results.length} results</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Exam Results</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{results.length} results</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-burgundy)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
-          <Plus size={18} />
-          Add Result
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={results as unknown as Record<string, unknown>[]}
+            filename="exam-results"
+            title="Exam Results"
+            columns={[
+              { key: "student.studentId", label: "Student ID" },
+              { key: "student.firstName", label: "First Name" },
+              { key: "student.lastName", label: "Last Name" },
+              { key: "examSession.title", label: "Exam" },
+              { key: "score", label: "Score" },
+              { key: "maxScore", label: "Max Score" },
+              { key: "percentage", label: "%" },
+              { key: "status", label: "Status" },
+              { key: "teacherComment", label: "Comment" },
+            ]}
+          />
+          <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-burgundy)] text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium">
+            <Plus size={18} />
+            Add Result
+          </button>
+        </div>
       </motion.div>
 
-      <motion.div className="bg-white rounded-xl border border-gray-200 p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+      <motion.div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <DataTable
           columns={columns}
           data={results}
@@ -276,53 +295,53 @@ export default function ResultsPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={selected ? "Edit Result" : "New Result"} size="md">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Student *</label>
-            <select value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Student *</label>
+            <select value={form.studentId} onChange={(e) => setForm({ ...form, studentId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required>
               <option value="">Select student</option>
               {students.map((s) => <option key={s.id} value={s.id}>{s.firstName} {s.lastName} ({s.studentId})</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Exam Session *</label>
-            <select value={form.examSessionId} onChange={(e) => setForm({ ...form, examSessionId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Exam Session *</label>
+            <select value={form.examSessionId} onChange={(e) => setForm({ ...form, examSessionId: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" required>
               <option value="">Select exam</option>
               {exams.map((ex) => <option key={ex.id} value={ex.id}>{ex.title}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Score *</label>
-              <input type="number" value={form.score} onChange={(e) => setForm({ ...form, score: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" min={0} step="0.5" required />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Score *</label>
+              <input type="number" value={form.score} onChange={(e) => setForm({ ...form, score: parseFloat(e.target.value) || 0 })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" min={0} step="0.5" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Max Score</label>
-              <input type="number" value={form.maxScore} onChange={(e) => setForm({ ...form, maxScore: parseFloat(e.target.value) || 100 })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" min={1} step="0.5" />
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Score</label>
+              <input type="number" value={form.maxScore} onChange={(e) => setForm({ ...form, maxScore: parseFloat(e.target.value) || 100 })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none" min={1} step="0.5" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Percentage</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Percentage</label>
               <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${percentage >= 70 ? "bg-emerald-50 text-emerald-700" : percentage >= 50 ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-700"}`}>
                 {percentage}%
               </div>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+            <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none">
               <option value="pending">Pending</option>
               <option value="passed">Passed</option>
               <option value="failed">Failed</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Teacher Comment</label>
-            <textarea value={form.teacherComment} onChange={(e) => setForm({ ...form, teacherComment: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none" />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teacher Comment</label>
+            <textarea value={form.teacherComment} onChange={(e) => setForm({ ...form, teacherComment: e.target.value })} rows={3} className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none" />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" id="cert" checked={form.certificateAvailable} onChange={(e) => setForm({ ...form, certificateAvailable: e.target.checked })} className="rounded border-gray-300" />
-            <label htmlFor="cert" className="text-sm text-gray-700">Certificate Available</label>
+            <input type="checkbox" id="cert" checked={form.certificateAvailable} onChange={(e) => setForm({ ...form, certificateAvailable: e.target.checked })} className="rounded border-gray-300 dark:border-slate-600" />
+            <label htmlFor="cert" className="text-sm text-gray-700 dark:text-gray-300">Certificate Available</label>
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+            <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-colors">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 text-sm font-medium text-white bg-[var(--color-burgundy)] hover:opacity-90 rounded-lg transition-opacity disabled:opacity-50 flex items-center gap-2">
               {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {selected ? "Update" : "Create"}

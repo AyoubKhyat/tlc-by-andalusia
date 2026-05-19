@@ -47,14 +47,14 @@ export default function StatCard({ title, value, icon: Icon, color = "burgundy",
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+      className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6 hover:shadow-lg transition-shadow"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
           <p className={`text-3xl font-bold mt-1 ${colors.text}`}>{displayValue}</p>
         </div>
         <div className={`w-12 h-12 rounded-xl ${colors.bg} flex items-center justify-center`}>

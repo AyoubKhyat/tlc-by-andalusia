@@ -1,13 +1,13 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 
-const heroVideos = [
-  "/videos/hero-1.mp4",
-  "/videos/hero-2.mp4",
-  "/videos/hero-3.mp4",
+const heroSlides = [
+  { gradient: "linear-gradient(135deg, #1B2A4A 0%, #7A1F3E 50%, #5A1530 100%)" },
+  { gradient: "linear-gradient(135deg, #5A1530 0%, #9B2D50 40%, #1B2A4A 100%)" },
+  { gradient: "linear-gradient(135deg, #1B2A4A 0%, #2A3F6A 50%, #7A1F3E 100%)" },
 ];
 
 const SLIDE_DURATION = 8000;
@@ -41,57 +41,18 @@ const childVariants = {
 };
 
 export default function HeroSection() {
-  const [currentVideo, setCurrentVideo] = useState(0);
-  const [videosLoaded, setVideosLoaded] = useState(false);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-
-  const setVideoRef = useCallback((el: HTMLVideoElement | null, index: number) => {
-    videoRefs.current[index] = el;
-  }, []);
-
-  useEffect(() => {
-    const firstVideo = videoRefs.current[0];
-    if (firstVideo) {
-      firstVideo.play().catch(() => {});
-    }
-
-    const checkLoaded = () => {
-      const any = videoRefs.current.some(
-        (v) => v && v.readyState >= 2
-      );
-      if (any) setVideosLoaded(true);
-    };
-
-    videoRefs.current.forEach((v) => {
-      if (v) v.addEventListener("loadeddata", checkLoaded);
-    });
-
-    const timeout = setTimeout(() => setVideosLoaded(true), 2000);
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, []);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentVideo((prev) => {
-        const next = (prev + 1) % heroVideos.length;
-        const nextVideo = videoRefs.current[next];
-        if (nextVideo) {
-          nextVideo.currentTime = 0;
-          nextVideo.play().catch(() => {});
-        }
-        return next;
-      });
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, SLIDE_DURATION);
-
     return () => clearInterval(interval);
   }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden noise-overlay">
-      {/* Decorative Islamic geometric SVG — background arabesque */}
+      {/* Decorative Islamic geometric SVG */}
       <div className="absolute inset-0 pointer-events-none z-[2] overflow-hidden" aria-hidden="true">
         <svg
           className="absolute w-[800px] h-[800px] opacity-5 -top-40 -right-40"
@@ -100,16 +61,11 @@ export default function HeroSection() {
           fill="none"
         >
           <g stroke="white" strokeWidth="0.5">
-            {/* Outer 12-pointed star */}
             <polygon points="200,20 220,80 280,40 250,100 320,90 270,140 340,160 270,170 310,230 250,200 260,270 200,220 140,270 150,200 90,230 130,170 60,160 130,140 80,90 150,100 120,40 180,80" />
-            {/* Middle 8-pointed star */}
             <polygon points="200,80 230,140 290,120 250,170 310,200 250,210 270,270 220,230 200,290 180,230 130,270 150,210 90,200 150,170 110,120 170,140" />
-            {/* Inner octagon */}
             <polygon points="200,120 240,150 260,200 240,250 200,270 160,250 140,200 160,150" />
-            {/* Central circle */}
             <circle cx="200" cy="200" r="40" />
             <circle cx="200" cy="200" r="20" />
-            {/* Radiating lines */}
             <line x1="200" y1="20" x2="200" y2="120" />
             <line x1="200" y1="270" x2="200" y2="380" />
             <line x1="20" y1="200" x2="140" y2="200" />
@@ -135,39 +91,31 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      {/* Video background slideshow */}
+      {/* Background image */}
       <div className="absolute inset-0">
-        {heroVideos.map((src, index) => (
-          <video
-            key={src}
-            ref={(el) => setVideoRef(el, index)}
-            src={src}
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-[2000ms] ease-in-out"
-            style={{ opacity: currentVideo === index ? 1 : 0 }}
+        <img
+          src="/images/gallery/academy-building.jpg"
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Gradient overlay slideshow */}
+      <div className="absolute inset-0">
+        {heroSlides.map((slide, index) => (
+          <div
+            key={index}
+            className="absolute inset-0 transition-opacity duration-[2000ms] ease-in-out"
+            style={{
+              background: slide.gradient,
+              opacity: currentSlide === index ? 0.82 : 0,
+            }}
           />
         ))}
-
-        {/* Gradient overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-burgundy-dark/70 to-navy/90" />
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* Fallback gradient (shown until video loads) */}
-      <AnimatePresence>
-        {!videosLoaded && (
-          <motion.div
-            className="absolute inset-0 gradient-hero"
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Animated gradient orbs on top of video */}
+      {/* Animated gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-[3]">
         <motion.div
           className="absolute w-[500px] h-[500px] rounded-full opacity-20"
@@ -225,27 +173,23 @@ export default function HeroSection() {
         </motion.span>
       ))}
 
-      {/* Video slide indicators */}
+      {/* Slide indicators */}
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {heroVideos.map((_, index) => (
+        {heroSlides.map((_, index) => (
           <button
             key={index}
-            onClick={() => {
-              setCurrentVideo(index);
-              const v = videoRefs.current[index];
-              if (v) { v.currentTime = 0; v.play().catch(() => {}); }
-            }}
+            onClick={() => setCurrentSlide(index)}
             className="group relative h-1.5 rounded-full overflow-hidden transition-all duration-300"
-            style={{ width: currentVideo === index ? 48 : 20 }}
+            style={{ width: currentSlide === index ? 48 : 20 }}
           >
             <div className="absolute inset-0 bg-white/30 rounded-full" />
-            {currentVideo === index && (
+            {currentSlide === index && (
               <motion.div
                 className="absolute inset-0 bg-white rounded-full origin-left"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: SLIDE_DURATION / 1000, ease: "linear" }}
-                key={`progress-${index}-${currentVideo}`}
+                key={`progress-${index}-${currentSlide}`}
               />
             )}
           </button>

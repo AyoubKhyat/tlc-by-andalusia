@@ -122,23 +122,23 @@ function MissionVision() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6 }}
-            className="bg-cream rounded-3xl p-8 lg:p-10 relative overflow-hidden"
+            className="bg-cream dark:bg-slate-800 rounded-3xl p-8 lg:p-10 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-burgundy/5 rounded-bl-3xl" />
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl gradient-burgundy flex items-center justify-center">
                 <Target className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-navy">Our Mission</h2>
+              <h2 className="text-2xl font-bold text-navy dark:text-white">Our Mission</h2>
             </div>
-            <p className="text-gray-600 text-lg leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
               To provide accessible, high-quality language education that
               empowers individuals of all ages and backgrounds to communicate
               confidently and effectively in a globalized world. We achieve this
@@ -151,16 +151,16 @@ function MissionVision() {
             initial={{ opacity: 0, x: 40 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-cream rounded-3xl p-8 lg:p-10 relative overflow-hidden"
+            className="bg-cream dark:bg-slate-800 rounded-3xl p-8 lg:p-10 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-burgundy/10 rounded-bl-3xl" />
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-xl gradient-burgundy flex items-center justify-center">
                 <Eye className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-navy">Our Vision</h2>
+              <h2 className="text-2xl font-bold text-navy dark:text-white">Our Vision</h2>
             </div>
-            <p className="text-gray-600 text-lg leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
               To become the leading language academy in Morocco, recognized for
               excellence in teaching, innovation in methodology, and the
               transformative impact we have on our students&#39; personal and
@@ -179,7 +179,7 @@ function OurStory() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-cream relative overflow-hidden noise-overlay">
+    <section ref={ref} className="py-20 lg:py-28 bg-cream dark:bg-slate-800 relative overflow-hidden noise-overlay">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -190,17 +190,16 @@ function OurStory() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Our Journey
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             The Story of <span className="text-gradient">TLC</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             From a single classroom to a thriving academy, our journey is one
             of passion, growth, and unwavering commitment to our students.
           </p>
         </motion.div>
 
         <div className="relative max-w-3xl mx-auto">
-          {/* Timeline line */}
           <div className="absolute left-4 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-0.5 bg-burgundy/20" />
 
           {timeline.map((item, index) => (
@@ -213,17 +212,16 @@ function OurStory() {
                 index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
               }`}
             >
-              {/* Dot */}
-              <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full gradient-burgundy border-4 border-cream z-10 mt-2" />
+              <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full gradient-burgundy border-4 border-cream dark:border-slate-800 z-10 mt-2" />
 
               <div className={`ml-12 md:ml-0 md:w-1/2 ${index % 2 === 0 ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
                 <span className="inline-block px-3 py-1 rounded-full text-xs font-bold text-burgundy bg-burgundy/10 mb-2">
                   {item.year}
                 </span>
-                <h3 className="text-xl font-bold text-navy mb-2">
+                <h3 className="text-xl font-bold text-navy dark:text-white mb-2">
                   {item.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -240,7 +238,7 @@ function ValuesSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -251,7 +249,7 @@ function ValuesSection() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Our Values
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             What We <span className="text-gradient">Stand For</span>
           </h2>
         </motion.div>
@@ -265,7 +263,7 @@ function ValuesSection() {
               transition={{ duration: 0.5, delay: index * 0.15 }}
             >
               <motion.div
-                className="bg-cream rounded-2xl p-6 h-full text-center border border-transparent hover:border-burgundy/10"
+                className="bg-cream dark:bg-slate-800 rounded-2xl p-6 h-full text-center border border-transparent hover:border-burgundy/10"
                 whileHover={{
                   y: -8,
                   boxShadow: "0 20px 40px rgba(122, 31, 62, 0.1)",
@@ -277,10 +275,10 @@ function ValuesSection() {
                 >
                   <value.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-navy mb-3">
+                <h3 className="text-xl font-bold text-navy dark:text-white mb-3">
                   {value.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed text-sm">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm">
                   {value.description}
                 </p>
               </motion.div>
@@ -297,7 +295,7 @@ function TeamSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-cream relative overflow-hidden noise-overlay">
+    <section ref={ref} className="py-20 lg:py-28 bg-cream dark:bg-slate-800 relative overflow-hidden noise-overlay">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -308,10 +306,10 @@ function TeamSection() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Our Team
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             Meet the <span className="text-gradient">People Behind TLC</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             Our dedicated team of educators and staff are the heart of TLC.
           </p>
         </motion.div>
@@ -326,9 +324,9 @@ function TeamSection() {
             <div className="w-32 h-32 rounded-full gradient-burgundy mx-auto mb-4 flex items-center justify-center">
               <span className="text-4xl font-bold text-white">SY</span>
             </div>
-            <h3 className="text-xl font-bold text-navy mb-1">Sabik Youness</h3>
+            <h3 className="text-xl font-bold text-navy dark:text-white mb-1">Sabik Youness</h3>
             <p className="text-burgundy font-medium mb-3">English Teacher</p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
               A passionate and experienced English language educator dedicated
               to helping students unlock their communication potential through
               engaging, student-centered lessons.
@@ -344,11 +342,11 @@ function TeamSection() {
             <div className="w-32 h-32 rounded-full gradient-burgundy mx-auto mb-4 flex items-center justify-center">
               <BookOpen className="w-12 h-12 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-navy mb-1">
+            <h3 className="text-xl font-bold text-navy dark:text-white mb-1">
               Teaching Staff
             </h3>
             <p className="text-burgundy font-medium mb-3">Language Educators</p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
               Our team of certified language professionals brings expertise in
               English, Arabic, French, and Italian, each committed to
               communicative excellence.
@@ -364,13 +362,13 @@ function TeamSection() {
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-navy to-[#2A3F6A] mx-auto mb-4 flex items-center justify-center">
               <Heart className="w-12 h-12 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-navy mb-1">
+            <h3 className="text-xl font-bold text-navy dark:text-white mb-1">
               Support Team
             </h3>
             <p className="text-burgundy font-medium mb-3">
               Administration &amp; Support
             </p>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
               Our friendly administrative team ensures smooth enrollment,
               scheduling, and communication so that students and parents
               always feel welcome and supported.

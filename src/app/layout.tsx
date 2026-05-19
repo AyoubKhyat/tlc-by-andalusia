@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://tlc-marrakech.com"),
   title: {
     default: "TLC by Andalusia Academy | English, The Natural Way",
     template: "%s | TLC by Andalusia Academy",

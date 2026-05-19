@@ -12,6 +12,8 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { registrationSchema } from "@/lib/validation";
 
 const programOptions = [
   "Kids English (7-9)",
@@ -32,6 +34,8 @@ const programOptions = [
 export default function ContactPage() {
   const formRef = useRef(null);
   const formInView = useInView(formRef, { once: true, margin: "-50px" });
+  const { errors, validateField, validateAll, clearAll } =
+    useFormValidation(registrationSchema);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -53,14 +57,29 @@ export default function ContactPage() {
     >
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name]) {
+      validateField(e.target.name, e.target.value);
+    }
+  };
+
+  const handleBlur = (
+    e: React.FocusEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    if (e.target.value) {
+      validateField(e.target.name, e.target.value);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setSuccess(false);
     setError("");
 
+    if (!validateAll(formData)) return;
+
+    setLoading(true);
     try {
       const res = await fetch("/api/registrations", {
         method: "POST",
@@ -70,6 +89,7 @@ export default function ContactPage() {
 
       if (res.ok) {
         setSuccess(true);
+        clearAll();
         setFormData({
           firstName: "",
           lastName: "",
@@ -81,9 +101,14 @@ export default function ContactPage() {
           message: "",
         });
       } else {
-        setError(
-          "There was an error submitting your registration. Please try again."
-        );
+        const data = await res.json().catch(() => null);
+        if (data?.errors) {
+          setError("Please fix the highlighted fields.");
+        } else {
+          setError(
+            "There was an error submitting your registration. Please try again."
+          );
+        }
       }
     } catch {
       setError("Unable to connect. Please try again or contact us via WhatsApp.");
@@ -91,6 +116,13 @@ export default function ContactPage() {
       setLoading(false);
     }
   };
+
+  const inputClass = (field: string) =>
+    `w-full px-4 py-3 rounded-xl border ${
+      errors[field]
+        ? "border-red-400 focus:border-red-500 focus:ring-red-200"
+        : "border-gray-200 focus:border-burgundy focus:ring-burgundy/20"
+    } focus:ring-2 outline-none transition-all duration-300 text-navy placeholder:text-gray-400`;
 
   return (
     <>
@@ -139,7 +171,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact section */}
-      <section className="py-16 lg:py-24 bg-cream relative overflow-hidden noise-overlay">
+      <section className="py-16 lg:py-24 bg-cream dark:bg-slate-900 relative overflow-hidden noise-overlay">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Contact info sidebar */}
@@ -167,7 +199,7 @@ export default function ContactPage() {
               </a>
 
               {/* Phone */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-xl gradient-burgundy flex items-center justify-center">
                     <Phone className="w-5 h-5 text-white" />
@@ -178,7 +210,7 @@ export default function ContactPage() {
               </div>
 
               {/* Address */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-xl gradient-burgundy flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-white" />
@@ -191,7 +223,7 @@ export default function ContactPage() {
               </div>
 
               {/* Hours */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-navy to-[#2A3F6A] flex items-center justify-center">
                     <Clock className="w-5 h-5 text-white" />
@@ -234,8 +266,8 @@ export default function ContactPage() {
               animate={formInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <div className="bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100">
-                <h2 className="text-2xl font-bold text-navy mb-2">
+              <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100 dark:border-slate-700">
+                <h2 className="text-2xl font-bold text-navy dark:text-white mb-2">
                   Registration Form
                 </h2>
                 <p className="text-gray-500 mb-8 text-sm">
@@ -267,7 +299,7 @@ export default function ContactPage() {
                   </motion.div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label
@@ -282,10 +314,13 @@ export default function ContactPage() {
                         type="text"
                         value={formData.firstName}
                         onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        onBlur={handleBlur}
+                        className={inputClass("firstName")}
                         placeholder="Your first name"
                       />
+                      {errors.firstName && (
+                        <p className="text-red-500 text-xs mt-1.5">{errors.firstName}</p>
+                      )}
                     </div>
                     <div>
                       <label
@@ -300,10 +335,13 @@ export default function ContactPage() {
                         type="text"
                         value={formData.lastName}
                         onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        onBlur={handleBlur}
+                        className={inputClass("lastName")}
                         placeholder="Your last name"
                       />
+                      {errors.lastName && (
+                        <p className="text-red-500 text-xs mt-1.5">{errors.lastName}</p>
+                      )}
                     </div>
                   </div>
 
@@ -321,10 +359,13 @@ export default function ContactPage() {
                         type="email"
                         value={formData.email}
                         onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        onBlur={handleBlur}
+                        className={inputClass("email")}
                         placeholder="your@email.com"
                       />
+                      {errors.email && (
+                        <p className="text-red-500 text-xs mt-1.5">{errors.email}</p>
+                      )}
                     </div>
                     <div>
                       <label
@@ -339,10 +380,13 @@ export default function ContactPage() {
                         type="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        onBlur={handleBlur}
+                        className={inputClass("phone")}
                         placeholder="06XX XX XX XX"
                       />
+                      {errors.phone && (
+                        <p className="text-red-500 text-xs mt-1.5">{errors.phone}</p>
+                      )}
                     </div>
                   </div>
 
@@ -363,7 +407,7 @@ export default function ContactPage() {
                         type="text"
                         value={formData.parentName}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        className={inputClass("parentName")}
                         placeholder="Parent/guardian name"
                       />
                     </div>
@@ -383,7 +427,7 @@ export default function ContactPage() {
                         type="tel"
                         value={formData.parentPhone}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400"
+                        className={inputClass("parentPhone")}
                         placeholder="Parent phone number"
                       />
                     </div>
@@ -401,8 +445,8 @@ export default function ContactPage() {
                       name="programInterest"
                       value={formData.programInterest}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy bg-white"
+                      onBlur={handleBlur}
+                      className={`${inputClass("programInterest")} bg-white`}
                     >
                       <option value="">Select a program</option>
                       {programOptions.map((option) => (
@@ -411,6 +455,9 @@ export default function ContactPage() {
                         </option>
                       ))}
                     </select>
+                    {errors.programInterest && (
+                      <p className="text-red-500 text-xs mt-1.5">{errors.programInterest}</p>
+                    )}
                   </div>
 
                   <div>
@@ -429,7 +476,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleChange}
                       rows={4}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400 resize-none"
+                      className={`${inputClass("message")} resize-none`}
                       placeholder="Tell us about your goals, questions, or any specific needs..."
                     />
                   </div>

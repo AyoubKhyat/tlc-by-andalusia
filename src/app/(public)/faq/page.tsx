@@ -1,15 +1,16 @@
 "use client";
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronDown, Search } from "lucide-react";
 
 type FAQCategory = "all" | "general" | "programs" | "exams" | "registration" | "payment";
 
 interface FAQItem {
+  id?: string;
   question: string;
   answer: string;
-  category: FAQCategory;
+  category: string | null;
 }
 
 const categoryTabs: { key: FAQCategory; label: string }[] = [
@@ -21,101 +22,85 @@ const categoryTabs: { key: FAQCategory; label: string }[] = [
   { key: "payment", label: "Payment" },
 ];
 
-const faqItems: FAQItem[] = [
+const fallbackFaqs: FAQItem[] = [
   {
     question: "What is TLC by Andalusia Academy?",
-    answer:
-      "TLC (The Language Center) by Andalusia Academy is a premier language learning institution based in Marrakech. We specialize in English language education using the communicative approach, and also offer Arabic, French, and Italian programs. Our mission is to help learners of all ages communicate confidently and naturally.",
+    answer: "TLC (The Language Center) by Andalusia Academy is a premier language learning institution based in Marrakech. We specialize in English language education using the communicative approach, and also offer Arabic, French, and Italian programs. Our mission is to help learners of all ages communicate confidently and naturally.",
     category: "general",
   },
   {
     question: "Where is TLC located?",
-    answer:
-      "We are located at Rue Prestige Targa 1, Marrakech. Our center is easily accessible and situated in a calm, professional environment ideal for focused learning. You can reach us by phone at 0643 43 43 82.",
+    answer: "We are located at Rue Prestige Targa 1, Marrakech. Our center is easily accessible and situated in a calm, professional environment ideal for focused learning. You can reach us by phone at 0643 43 43 82.",
     category: "general",
   },
   {
     question: "What are your opening hours?",
-    answer:
-      "Our morning sessions run on Saturday and Sunday from 9h to 11h. Afternoon sessions are held Monday through Thursday from 17h to 19h. We recommend contacting us for the most up-to-date schedule information.",
+    answer: "Our morning sessions run on Saturday and Sunday from 9h to 11h. Afternoon sessions are held Monday through Thursday from 17h to 19h. We recommend contacting us for the most up-to-date schedule information.",
     category: "general",
   },
   {
     question: "What age groups do you serve?",
-    answer:
-      "We offer programs for learners starting from age 7 and above. Our programs are organized into Kids (7-9), Juniors (10-14), Teens (15-17), and Adults (18+). Each program is tailored to the specific developmental stage and learning needs of its age group.",
+    answer: "We offer programs for learners starting from age 7 and above. Our programs are organized into Kids (7-9), Juniors (10-14), Teens (15-17), and Adults (18+). Each program is tailored to the specific developmental stage and learning needs of its age group.",
     category: "programs",
   },
   {
     question: "How long does each course level last?",
-    answer:
-      "Most of our regular English programs run in 3-month cycles per level. Exam preparation courses (TOEFL, IELTS, TOEIC) typically last 2-3 months depending on the student's starting level and target score. Conversation classes are offered on an ongoing basis.",
+    answer: "Most of our regular English programs run in 3-month cycles per level. Exam preparation courses (TOEFL, IELTS, TOEIC) typically last 2-3 months depending on the student's starting level and target score. Conversation classes are offered on an ongoing basis.",
     category: "programs",
   },
   {
     question: "What levels do you offer?",
-    answer:
-      "Our programs cover the full spectrum of the Common European Framework of Reference (CEFR), from A1 (absolute beginner) to C1 (advanced). The specific levels available depend on the program: Kids start with Starter/Beginner levels, while adult programs cover A1 through C1.",
+    answer: "Our programs cover the full spectrum of the Common European Framework of Reference (CEFR), from A1 (absolute beginner) to C1 (advanced). The specific levels available depend on the program: Kids start with Starter/Beginner levels, while adult programs cover A1 through C1.",
     category: "programs",
   },
   {
     question: "How are classes structured?",
-    answer:
-      "We maintain small class sizes of 12-15 students maximum to ensure personalized attention and maximum speaking opportunities. Each class follows a communicative approach with interactive activities, pair work, group discussions, role-plays, and real-world practice scenarios.",
+    answer: "We maintain small class sizes of 12-15 students maximum to ensure personalized attention and maximum speaking opportunities. Each class follows a communicative approach with interactive activities, pair work, group discussions, role-plays, and real-world practice scenarios.",
     category: "programs",
   },
   {
     question: "Is there a placement test?",
-    answer:
-      "Yes, every new student takes a placement test before starting. This comprehensive assessment evaluates grammar, vocabulary, listening, and speaking skills to place you in the right level. The test is free of charge, and results are typically available within 24 hours.",
+    answer: "Yes, every new student takes a placement test before starting. This comprehensive assessment evaluates grammar, vocabulary, listening, and speaking skills to place you in the right level. The test is free of charge, and results are typically available within 24 hours.",
     category: "exams",
   },
   {
     question: "How can I check my exam results?",
-    answer:
-      "You can check your exam results through our website by visiting the 'Exam Results' page. You will need your Student ID and date of birth to access your results securely. If you have any issues, please contact our administration team.",
+    answer: "You can check your exam results through our website by visiting the 'Exam Results' page. You will need your Student ID and date of birth to access your results securely. If you have any issues, please contact our administration team.",
     category: "exams",
   },
   {
     question: "Do you offer certificates?",
-    answer:
-      "Yes, students who successfully complete a level and pass the final exam receive an official TLC certificate indicating their achieved CEFR level. These certificates are recognized and valued by schools and employers. We also prepare students for internationally recognized exams like TOEFL, IELTS, and TOEIC.",
+    answer: "Yes, students who successfully complete a level and pass the final exam receive an official TLC certificate indicating their achieved CEFR level. These certificates are recognized and valued by schools and employers. We also prepare students for internationally recognized exams like TOEFL, IELTS, and TOEIC.",
     category: "exams",
   },
   {
     question: "What is the final exam like?",
-    answer:
-      "The final exam is a comprehensive assessment covering all four language skills: reading, writing, listening, and speaking. It is designed to evaluate your overall progress throughout the level. Students receive a detailed score breakdown and teacher feedback after the exam.",
+    answer: "The final exam is a comprehensive assessment covering all four language skills: reading, writing, listening, and speaking. It is designed to evaluate your overall progress throughout the level. Students receive a detailed score breakdown and teacher feedback after the exam.",
     category: "exams",
   },
   {
     question: "How do I register for a course?",
-    answer:
-      "You can register by filling out the registration form on our Contact page, calling us at 0643 43 43 82, or messaging us on WhatsApp. You can also visit our center in person at Rue Prestige Targa 1, Marrakech. After registration, you will be scheduled for a placement test.",
+    answer: "You can register by filling out the registration form on our Contact page, calling us at 0643 43 43 82, or messaging us on WhatsApp. You can also visit our center in person at Rue Prestige Targa 1, Marrakech. After registration, you will be scheduled for a placement test.",
     category: "registration",
   },
   {
     question: "Can I switch levels or programs after starting?",
-    answer:
-      "Yes, if your teacher and our academic coordinator determine that your current level is not the best fit, we can arrange a transfer to a more appropriate level. We prioritize placing students where they will learn most effectively and feel appropriately challenged.",
+    answer: "Yes, if your teacher and our academic coordinator determine that your current level is not the best fit, we can arrange a transfer to a more appropriate level. We prioritize placing students where they will learn most effectively and feel appropriately challenged.",
     category: "registration",
   },
   {
     question: "What are the payment options?",
-    answer:
-      "We offer flexible payment options including full payment at registration and installment plans for longer programs. Please contact our administration team for current pricing and available payment methods. We strive to make quality language education accessible to all.",
+    answer: "We offer flexible payment options including full payment at registration and installment plans for longer programs. Please contact our administration team for current pricing and available payment methods. We strive to make quality language education accessible to all.",
     category: "payment",
   },
   {
     question: "Is there a refund policy?",
-    answer:
-      "Refund requests are handled on a case-by-case basis. If you need to withdraw from a course, please contact our administration as soon as possible. Refund eligibility depends on the timing of the request and the portion of the course completed. Details are provided at the time of registration.",
+    answer: "Refund requests are handled on a case-by-case basis. If you need to withdraw from a course, please contact our administration as soon as possible. Refund eligibility depends on the timing of the request and the portion of the course completed. Details are provided at the time of registration.",
     category: "payment",
   },
   {
     question: "Are there any discounts available?",
-    answer:
-      "We occasionally offer discounts for early registration, siblings, and returning students. We also run promotional offers during specific enrollment periods. Follow us on social media or contact us directly to learn about current offers and special pricing.",
+    answer: "We occasionally offer discounts for early registration, siblings, and returning students. We also run promotional offers during specific enrollment periods. Follow us on social media or contact us directly to learn about current offers and special pricing.",
     category: "payment",
   },
 ];
@@ -131,14 +116,14 @@ function AccordionItem({
 }) {
   return (
     <motion.div
-      className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm"
+      className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm"
       layout
     >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-cream/50 transition-colors duration-200"
+        className="w-full flex items-center justify-between p-5 sm:p-6 text-left hover:bg-cream/50 dark:hover:bg-slate-700/50 transition-colors duration-200"
       >
-        <span className="font-semibold text-navy pr-4 text-sm sm:text-base">
+        <span className="font-semibold text-navy dark:text-white pr-4 text-sm sm:text-base">
           {item.question}
         </span>
         <motion.div
@@ -159,8 +144,8 @@ function AccordionItem({
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <div className="px-5 sm:px-6 pb-5 sm:pb-6">
-              <div className="border-t border-gray-100 pt-4">
-                <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+              <div className="border-t border-gray-100 dark:border-slate-700 pt-4">
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm sm:text-base">
                   {item.answer}
                 </p>
               </div>
@@ -176,8 +161,20 @@ export default function FAQPage() {
   const [activeCategory, setActiveCategory] = useState<FAQCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [openItems, setOpenItems] = useState<Set<number>>(new Set());
+  const [faqItems, setFaqItems] = useState<FAQItem[]>(fallbackFaqs);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    fetch("/api/faq")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setFaqItems(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredItems = faqItems.filter((item) => {
     const matchesCategory =
@@ -203,14 +200,12 @@ export default function FAQPage() {
 
   return (
     <>
-      {/* Hero */}
       <section className="relative py-28 lg:py-36 gradient-hero overflow-hidden noise-overlay moroccan-pattern">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
             className="absolute w-[400px] h-[400px] rounded-full opacity-10"
             style={{
-              background:
-                "radial-gradient(circle, rgba(122,31,62,0.4) 0%, transparent 70%)",
+              background: "radial-gradient(circle, rgba(122,31,62,0.4) 0%, transparent 70%)",
               top: "10%",
               right: "-5%",
             }}
@@ -247,10 +242,8 @@ export default function FAQPage() {
         </div>
       </section>
 
-      {/* FAQ Content */}
-      <section ref={ref} className="py-16 lg:py-24 bg-cream relative overflow-hidden noise-overlay">
+      <section ref={ref} className="py-16 lg:py-24 bg-cream dark:bg-slate-900 relative overflow-hidden noise-overlay">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
-          {/* Search */}
           <motion.div
             className="mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -264,12 +257,11 @@ export default function FAQPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search questions..."
-                className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy placeholder:text-gray-400 bg-white"
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-gray-200 dark:border-slate-700 focus:border-burgundy focus:ring-2 focus:ring-burgundy/20 outline-none transition-all duration-300 text-navy dark:text-white placeholder:text-gray-400 bg-white dark:bg-slate-800"
               />
             </div>
           </motion.div>
 
-          {/* Category tabs */}
           <motion.div
             className="flex flex-wrap gap-2 mb-8"
             initial={{ opacity: 0, y: 20 }}
@@ -283,7 +275,7 @@ export default function FAQPage() {
                 className={`px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 ${
                   activeCategory === tab.key
                     ? "gradient-burgundy text-white shadow-md"
-                    : "bg-white text-navy hover:bg-burgundy/10 border border-gray-200"
+                    : "bg-white dark:bg-slate-800 text-navy dark:text-gray-300 hover:bg-burgundy/10 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700"
                 }`}
               >
                 {tab.label}
@@ -291,7 +283,6 @@ export default function FAQPage() {
             ))}
           </motion.div>
 
-          {/* FAQ items */}
           <motion.div
             className="space-y-3"
             initial={{ opacity: 0 }}
@@ -301,7 +292,7 @@ export default function FAQPage() {
             {filteredItems.length > 0 ? (
               filteredItems.map((item, index) => (
                 <motion.div
-                  key={item.question}
+                  key={item.id || item.question}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -315,32 +306,31 @@ export default function FAQPage() {
               ))
             ) : (
               <motion.div
-                className="text-center py-12 bg-white rounded-2xl"
+                className="text-center py-12 bg-white dark:bg-slate-800 rounded-2xl"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 font-medium">
+                <Search className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400 font-medium">
                   No questions match your search.
                 </p>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
                   Try adjusting your search terms or category filter.
                 </p>
               </motion.div>
             )}
           </motion.div>
 
-          {/* CTA */}
           <motion.div
-            className="mt-12 text-center bg-white rounded-2xl p-8 shadow-sm"
+            className="mt-12 text-center bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-slate-700"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <h3 className="text-xl font-bold text-navy mb-2">
+            <h3 className="text-xl font-bold text-navy dark:text-white mb-2">
               Still have questions?
             </h3>
-            <p className="text-gray-500 mb-6 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">
               Cannot find the answer you are looking for? Reach out to our
               friendly team.
             </p>

@@ -39,7 +39,7 @@ export default function GalleryPreview() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -50,10 +50,10 @@ export default function GalleryPreview() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Gallery
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             Life at <span className="text-gradient">TLC</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             A glimpse into our vibrant learning environment, student activities,
             and community events.
           </p>

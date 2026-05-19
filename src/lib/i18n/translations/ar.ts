@@ -6,6 +6,7 @@ export const ar = {
     approach: "منهجية التعلم",
     results: "نتائج الامتحانات",
     gallery: "المعرض",
+    blog: "المدونة",
     faq: "الأسئلة الشائعة",
     contact: "اتصل بنا",
     enrollNow: "سجل الآن",

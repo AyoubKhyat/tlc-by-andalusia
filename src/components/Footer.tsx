@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -19,8 +20,9 @@ const quickLinks = [
   { name: "Home", href: "/" },
   { name: "About Us", href: "/about" },
   { name: "Programs", href: "/programs" },
-  { name: "Learning Approach", href: "/approach" },
+  { name: "Learning Approach", href: "/learning-approach" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -75,6 +77,74 @@ const itemVariants = {
     transition: { duration: 0.5 },
   },
 };
+
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setStatus("error");
+        setMessage(data.error);
+      } else {
+        setStatus("success");
+        setMessage(data.message);
+        setEmail("");
+      }
+    } catch {
+      setStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+  };
+
+  return (
+    <div className="mt-8">
+      <h4 className="text-sm font-semibold tracking-widest uppercase text-burgundy-light mb-3">
+        Newsletter
+      </h4>
+      <p className="text-xs text-white/50 mb-3">
+        Stay updated with our latest programs and events.
+      </p>
+      {status === "success" ? (
+        <p className="text-sm text-emerald-400">{message}</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setStatus("idle"); }}
+            placeholder="Your email"
+            required
+            className="flex-1 px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-burgundy-light/50 focus:bg-white/10 transition-all duration-300"
+          />
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="px-4 py-2 text-sm font-medium bg-burgundy hover:bg-burgundy-light text-white rounded-lg transition-colors duration-300 disabled:opacity-50"
+          >
+            {status === "loading" ? "..." : "Join"}
+          </button>
+        </form>
+      )}
+      {status === "error" && (
+        <p className="text-xs text-red-400 mt-1">{message}</p>
+      )}
+    </div>
+  );
+}
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -205,30 +275,7 @@ export default function Footer() {
             </ul>
 
             {/* Newsletter */}
-            <div className="mt-8">
-              <h4 className="text-sm font-semibold tracking-widest uppercase text-burgundy-light mb-3">
-                Newsletter
-              </h4>
-              <p className="text-xs text-white/50 mb-3">
-                Stay updated with our latest programs and events.
-              </p>
-              <form
-                onSubmit={(e) => e.preventDefault()}
-                className="flex gap-2"
-              >
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-burgundy-light/50 focus:bg-white/10 transition-all duration-300"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium bg-burgundy hover:bg-burgundy-light text-white rounded-lg transition-colors duration-300"
-                >
-                  Join
-                </button>
-              </form>
-            </div>
+            <NewsletterForm />
           </motion.div>
         </div>
 

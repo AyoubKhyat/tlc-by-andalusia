@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -8,6 +10,40 @@
   --burgundy-dark: #5A1530;
   --cream: #FAF7F4;
   --navy: #1B2A4A;
+}
+
+html.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --cream: #1e293b;
+  --burgundy: #c2456b;
+  --burgundy-light: #d4638a;
+  --burgundy-dark: #8b2a4d;
+}
+
+html.dark body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+html.dark .glass {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .text-gradient {
+  background: linear-gradient(135deg, #c2456b, #d4638a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #c2456b;
 }
 
 @theme inline {
@@ -172,4 +208,52 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #5A1530;
+}
+
+/* Print-friendly styles for results page */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+  }
+
+  nav, footer, .no-print,
+  .noise-overlay::after,
+  .moroccan-pattern::before,
+  .moroccan-pattern-dark::before {
+    display: none !important;
+  }
+
+  .gradient-hero,
+  .gradient-burgundy {
+    background: #7A1F3E !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-break {
+    page-break-before: always;
+  }
+
+  section {
+    padding: 1rem 0 !important;
+  }
+
+  .shadow-sm, .shadow-lg, .shadow-xl, .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  .rounded-2xl, .rounded-3xl, .rounded-xl {
+    border-radius: 8px !important;
+  }
+
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

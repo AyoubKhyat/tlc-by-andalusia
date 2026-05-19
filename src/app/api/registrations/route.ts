@@ -1,17 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { validate, registrationSchema } from "@/lib/validation";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { firstName, lastName, phone, email, parentName, parentPhone, programInterest, message } = body;
 
-    if (!firstName || !lastName || !phone) {
-      return Response.json(
-        { error: "First name, last name, and phone are required" },
-        { status: 400 }
-      );
+    const errors = validate(
+      { firstName, lastName, phone, email, programInterest },
+      registrationSchema
+    );
+    if (Object.keys(errors).length > 0) {
+      return Response.json({ error: "Validation failed", errors }, { status: 400 });
     }
 
     const registration = await prisma.registration.create({

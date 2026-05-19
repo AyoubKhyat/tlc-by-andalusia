@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Baby,
@@ -21,15 +21,16 @@ import {
 type Category = "all" | "english" | "exam" | "languages";
 
 interface Program {
+  id?: string;
   title: string;
-  category: Category;
-  icon: React.ComponentType<{ className?: string }>;
+  slug?: string;
+  category?: string;
+  icon?: string | null;
   ageGroup: string;
   duration: string;
   levels: string;
   description: string;
-  objectives: string[];
-  color: string;
+  objectives: string | string[];
 }
 
 const categories: { key: Category; label: string }[] = [
@@ -39,212 +40,281 @@ const categories: { key: Category; label: string }[] = [
   { key: "languages", label: "Other Languages" },
 ];
 
-const programs: Program[] = [
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  Baby,
+  Users,
+  GraduationCap,
+  Briefcase,
+  BookOpen,
+  MessageCircle,
+  FileCheck,
+  Globe,
+};
+
+const colorMap: Record<string, string> = {
+  "kids-english": "from-pink-400 to-rose-500",
+  "juniors-english": "from-blue-400 to-indigo-500",
+  "teens-english": "from-emerald-400 to-teal-500",
+  "adult-english": "from-amber-400 to-orange-500",
+  "academic-english": "from-violet-400 to-purple-500",
+  "conversation-classes": "from-rose-400 to-pink-500",
+  "toefl-preparation": "from-sky-400 to-blue-500",
+  "ielts-preparation": "from-teal-400 to-emerald-500",
+  "toeic-preparation": "from-orange-400 to-amber-500",
+  arabic: "from-green-400 to-emerald-500",
+  french: "from-blue-400 to-sky-500",
+  italian: "from-red-400 to-orange-500",
+};
+
+const defaultColors = [
+  "from-pink-400 to-rose-500",
+  "from-blue-400 to-indigo-500",
+  "from-emerald-400 to-teal-500",
+  "from-amber-400 to-orange-500",
+  "from-violet-400 to-purple-500",
+  "from-rose-400 to-pink-500",
+];
+
+const fallbackPrograms: Program[] = [
   {
     title: "Kids English",
+    slug: "kids-english",
     category: "english",
-    icon: Baby,
+    icon: "Baby",
     ageGroup: "Ages 7-9",
     duration: "3 months per level",
     levels: "Starter, Beginner, Elementary",
     description:
       "An exciting introduction to English for young learners. Through games, songs, storytelling, and interactive activities, children develop foundational vocabulary, pronunciation, and the confidence to express themselves in English.",
-    objectives: [
+    objectives: JSON.stringify([
       "Build basic vocabulary through play",
       "Develop listening comprehension",
       "Encourage natural pronunciation",
       "Foster a love of language learning",
-    ],
-    color: "from-pink-400 to-rose-500",
+    ]),
   },
   {
     title: "Juniors English",
+    slug: "juniors-english",
     category: "english",
-    icon: Users,
+    icon: "Users",
     ageGroup: "Ages 10-14",
     duration: "3 months per level",
     levels: "A1, A2, B1",
     description:
       "A dynamic program for pre-teens and young teens that builds reading, writing, speaking, and listening skills through collaborative projects, discussions, and real-world topics relevant to their interests.",
-    objectives: [
+    objectives: JSON.stringify([
       "Strengthen all four language skills",
       "Develop critical thinking in English",
       "Build academic vocabulary",
       "Prepare for secondary school English",
-    ],
-    color: "from-blue-400 to-indigo-500",
+    ]),
   },
   {
     title: "Teens English",
+    slug: "teens-english",
     category: "english",
-    icon: GraduationCap,
+    icon: "GraduationCap",
     ageGroup: "Ages 15-17",
     duration: "3 months per level",
     levels: "A2, B1, B2",
     description:
       "Advanced communication and academic English for teenagers preparing for higher education or international opportunities. Emphasis on debate, essay writing, presentation skills, and exam readiness.",
-    objectives: [
+    objectives: JSON.stringify([
       "Master advanced grammar and vocabulary",
       "Develop presentation and debate skills",
       "Practice academic writing",
       "Prepare for university-level English",
-    ],
-    color: "from-emerald-400 to-teal-500",
+    ]),
   },
   {
     title: "Adult English",
+    slug: "adult-english",
     category: "english",
-    icon: Briefcase,
+    icon: "Briefcase",
     ageGroup: "Ages 18+",
     duration: "3 months per level",
     levels: "A1 to C1",
     description:
       "Comprehensive English courses for adults of all levels, from absolute beginners to advanced speakers. Focus on practical communication for professional, academic, and personal contexts.",
-    objectives: [
+    objectives: JSON.stringify([
       "Achieve fluency in professional English",
       "Master business communication",
       "Build confidence in social situations",
       "Reach target CEFR level",
-    ],
-    color: "from-amber-400 to-orange-500",
+    ]),
   },
   {
     title: "Academic English",
+    slug: "academic-english",
     category: "english",
-    icon: BookOpen,
+    icon: "BookOpen",
     ageGroup: "Ages 16+",
     duration: "2-3 months",
     levels: "B1 to C1",
     description:
       "Specialized program focusing on academic English skills required for university admission and success. Covers essay writing, research skills, academic vocabulary, and critical analysis.",
-    objectives: [
+    objectives: JSON.stringify([
       "Master academic writing conventions",
       "Develop research and citation skills",
       "Build advanced academic vocabulary",
       "Prepare for university-level coursework",
-    ],
-    color: "from-violet-400 to-purple-500",
+    ]),
   },
   {
     title: "Conversation Classes",
+    slug: "conversation-classes",
     category: "english",
-    icon: MessageCircle,
+    icon: "MessageCircle",
     ageGroup: "Ages 16+",
     duration: "Ongoing",
     levels: "A2 to C1",
     description:
       "Focused conversation practice sessions designed to boost speaking fluency and listening comprehension. Real-world topics, role-plays, discussions, and spontaneous speaking activities.",
-    objectives: [
+    objectives: JSON.stringify([
       "Increase speaking fluency and speed",
       "Improve listening comprehension",
       "Expand idiomatic expressions",
       "Build confidence in spontaneous speech",
-    ],
-    color: "from-rose-400 to-pink-500",
+    ]),
   },
   {
     title: "TOEFL Preparation",
+    slug: "toefl-preparation",
     category: "exam",
-    icon: FileCheck,
+    icon: "FileCheck",
     ageGroup: "Ages 16+",
     duration: "2-3 months",
     levels: "B1+ entry required",
     description:
       "Intensive preparation for the TOEFL iBT exam. Covers all four sections with practice tests, test-taking strategies, time management techniques, and personalized feedback.",
-    objectives: [
+    objectives: JSON.stringify([
       "Master all TOEFL sections",
       "Develop effective test strategies",
       "Practice with authentic materials",
       "Achieve target score",
-    ],
-    color: "from-sky-400 to-blue-500",
+    ]),
   },
   {
     title: "IELTS Preparation",
+    slug: "ielts-preparation",
     category: "exam",
-    icon: FileCheck,
+    icon: "FileCheck",
     ageGroup: "Ages 16+",
     duration: "2-3 months",
     levels: "B1+ entry required",
     description:
       "Comprehensive IELTS preparation covering Academic and General Training modules. Intensive practice on reading, writing, listening, and speaking with mock exams and expert guidance.",
-    objectives: [
+    objectives: JSON.stringify([
       "Achieve target band score",
       "Master each IELTS component",
       "Build test-taking confidence",
       "Receive detailed performance feedback",
-    ],
-    color: "from-teal-400 to-emerald-500",
+    ]),
   },
   {
     title: "TOEIC Preparation",
+    slug: "toeic-preparation",
     category: "exam",
-    icon: FileCheck,
+    icon: "FileCheck",
     ageGroup: "Ages 18+",
     duration: "2 months",
     levels: "A2+ entry required",
     description:
       "Focused preparation for the TOEIC exam, targeting professionals who need certified English proficiency for career advancement, international assignments, or company requirements.",
-    objectives: [
+    objectives: JSON.stringify([
       "Improve professional English scores",
       "Practice business English contexts",
       "Develop speed and accuracy",
       "Achieve certification goals",
-    ],
-    color: "from-orange-400 to-amber-500",
+    ]),
   },
   {
     title: "Arabic",
+    slug: "arabic",
     category: "languages",
-    icon: Globe,
+    icon: "Globe",
     ageGroup: "All ages",
     duration: "3 months per level",
     levels: "Beginner to Advanced",
     description:
       "Learn Modern Standard Arabic or Moroccan Darija through our communicative approach. Programs available for both native speakers seeking literacy and non-native speakers discovering the language.",
-    objectives: [
+    objectives: JSON.stringify([
       "Develop reading and writing in Arabic",
       "Build conversational fluency",
       "Understand cultural contexts",
       "Achieve target proficiency level",
-    ],
-    color: "from-green-400 to-emerald-500",
+    ]),
   },
   {
     title: "French",
+    slug: "french",
     category: "languages",
-    icon: Globe,
+    icon: "Globe",
     ageGroup: "All ages",
     duration: "3 months per level",
     levels: "A1 to B2",
     description:
       "Master French for academic, professional, or personal goals. Our communicative approach ensures you develop practical speaking skills alongside grammar and vocabulary foundations.",
-    objectives: [
+    objectives: JSON.stringify([
       "Achieve conversational fluency",
       "Master French grammar structures",
       "Prepare for DELF/DALF exams",
       "Develop cultural competence",
-    ],
-    color: "from-blue-400 to-sky-500",
+    ]),
   },
   {
     title: "Italian",
+    slug: "italian",
     category: "languages",
-    icon: Globe,
+    icon: "Globe",
     ageGroup: "All ages",
     duration: "3 months per level",
     levels: "A1 to B1",
     description:
       "Discover the beauty of Italian through engaging, communicative lessons. Perfect for travel, culture, or professional needs, our program makes learning Italian natural and enjoyable.",
-    objectives: [
+    objectives: JSON.stringify([
       "Build practical Italian skills",
       "Develop listening comprehension",
       "Explore Italian culture and cuisine",
       "Achieve travel-ready fluency",
-    ],
-    color: "from-red-400 to-orange-500",
+    ]),
   },
 ];
+
+function inferCategory(program: Program): Category {
+  if (program.category) {
+    const cat = program.category.toLowerCase();
+    if (cat === "english" || cat === "exam" || cat === "languages") return cat;
+  }
+  const title = program.title.toLowerCase();
+  if (title.includes("toefl") || title.includes("ielts") || title.includes("toeic")) return "exam";
+  if (title.includes("arabic") || title.includes("french") || title.includes("italian")) return "languages";
+  return "english";
+}
+
+function getObjectives(objectives: string | string[]): string[] {
+  if (Array.isArray(objectives)) return objectives;
+  try {
+    const parsed = JSON.parse(objectives);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return objectives ? objectives.split("\n").filter(Boolean) : [];
+  }
+}
+
+function getColor(program: Program, index: number): string {
+  const slug = program.slug || program.title.toLowerCase().replace(/\s+/g, "-");
+  return colorMap[slug] || defaultColors[index % defaultColors.length];
+}
+
+function getIcon(program: Program): React.ComponentType<{ className?: string }> {
+  if (program.icon && iconMap[program.icon]) return iconMap[program.icon];
+  const category = inferCategory(program);
+  if (category === "exam") return FileCheck;
+  if (category === "languages") return Globe;
+  return BookOpen;
+}
 
 function PageHero() {
   return (
@@ -295,6 +365,9 @@ function PageHero() {
 function ProgramCard({ program, index }: { program: Program; index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const color = getColor(program, index);
+  const Icon = getIcon(program);
+  const objectives = getObjectives(program.objectives);
 
   return (
     <motion.div
@@ -304,60 +377,55 @@ function ProgramCard({ program, index }: { program: Program; index: number }) {
       transition={{ duration: 0.5, delay: (index % 6) * 0.1 }}
     >
       <motion.div
-        className="group relative rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden h-full flex flex-col"
+        className="group relative rounded-2xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden h-full flex flex-col"
         whileHover={{
           y: -6,
           boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
         }}
         transition={{ duration: 0.3 }}
       >
-        {/* Gradient accent */}
-        <div
-          className={`h-2 bg-gradient-to-r ${program.color}`}
-        />
+        <div className={`h-2 bg-gradient-to-r ${color}`} />
 
         <div className="p-6 flex flex-col flex-1">
           <div className="flex items-start gap-4 mb-4">
             <div
-              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${program.color} flex items-center justify-center flex-shrink-0`}
+              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center flex-shrink-0`}
             >
-              <program.icon className="w-6 h-6 text-white" />
+              <Icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-navy">{program.title}</h3>
+              <h3 className="text-xl font-bold text-navy dark:text-white">{program.title}</h3>
               <p className="text-sm text-burgundy font-medium">
                 {program.ageGroup}
               </p>
             </div>
           </div>
 
-          <p className="text-gray-600 mb-4 leading-relaxed text-sm">
+          <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed text-sm">
             {program.description}
           </p>
 
-          {/* Meta info */}
           <div className="flex flex-wrap gap-3 mb-4 text-xs">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream text-navy font-medium">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream dark:bg-slate-700 text-navy dark:text-gray-200 font-medium">
               <Clock className="w-3 h-3" />
               {program.duration}
             </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream text-navy font-medium">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream dark:bg-slate-700 text-navy dark:text-gray-200 font-medium">
               <BarChart3 className="w-3 h-3" />
               {program.levels}
             </span>
           </div>
 
-          {/* Objectives */}
           <div className="mb-5 flex-1">
-            <h4 className="text-sm font-semibold text-navy mb-2 flex items-center gap-1">
+            <h4 className="text-sm font-semibold text-navy dark:text-white mb-2 flex items-center gap-1">
               <Target className="w-3.5 h-3.5" />
               Key Objectives
             </h4>
             <ul className="space-y-1.5">
-              {program.objectives.map((obj) => (
+              {objectives.map((obj) => (
                 <li
                   key={obj}
-                  className="text-xs text-gray-500 flex items-start gap-2"
+                  className="text-xs text-gray-500 dark:text-gray-400 flex items-start gap-2"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-burgundy mt-1.5 flex-shrink-0" />
                   {obj}
@@ -381,19 +449,30 @@ function ProgramCard({ program, index }: { program: Program; index: number }) {
 
 export default function ProgramsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
+  const [programs, setPrograms] = useState<Program[]>(fallbackPrograms);
+
+  useEffect(() => {
+    fetch("/api/programs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setPrograms(data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredPrograms =
     activeCategory === "all"
       ? programs
-      : programs.filter((p) => p.category === activeCategory);
+      : programs.filter((p) => inferCategory(p) === activeCategory);
 
   return (
     <>
       <PageHero />
 
-      <section className="py-16 lg:py-20 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+      <section className="py-16 lg:py-20 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Category filter tabs */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
             {categories.map((cat) => (
               <button
@@ -402,7 +481,7 @@ export default function ProgramsPage() {
                 className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all duration-300 ${
                   activeCategory === cat.key
                     ? "gradient-burgundy text-white shadow-lg shadow-burgundy/20"
-                    : "bg-cream text-navy hover:bg-burgundy/10"
+                    : "bg-cream dark:bg-slate-800 text-navy dark:text-gray-300 hover:bg-burgundy/10 dark:hover:bg-slate-700"
                 }`}
               >
                 {cat.label}
@@ -410,7 +489,6 @@ export default function ProgramsPage() {
             ))}
           </div>
 
-          {/* Programs grid */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeCategory}
@@ -422,7 +500,7 @@ export default function ProgramsPage() {
             >
               {filteredPrograms.map((program, index) => (
                 <ProgramCard
-                  key={program.title}
+                  key={program.id || program.title}
                   program={program}
                   index={index}
                 />

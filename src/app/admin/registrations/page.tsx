@@ -9,6 +9,7 @@ import DataTable, { Column } from "@/components/admin/DataTable";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Modal from "@/components/admin/Modal";
+import ExportButtons from "@/components/admin/ExportButtons";
 
 interface Registration {
   id: string;
@@ -126,8 +127,8 @@ export default function RegistrationsPage() {
       sortable: true,
       render: (r) => (
         <div>
-          <p className="font-medium text-gray-900">{r.firstName} {r.lastName}</p>
-          {r.email && <p className="text-xs text-gray-500">{r.email}</p>}
+          <p className="font-medium text-gray-900 dark:text-white">{r.firstName} {r.lastName}</p>
+          {r.email && <p className="text-xs text-gray-500 dark:text-gray-400">{r.email}</p>}
         </div>
       ),
     },
@@ -140,7 +141,7 @@ export default function RegistrationsPage() {
         <select
           value={r.status}
           onChange={(e) => updateStatus(r, e.target.value)}
-          className="px-2 py-1 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none bg-white"
+          className="px-2 py-1 text-xs border border-gray-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none bg-white dark:bg-slate-800 dark:text-white"
           onClick={(e) => e.stopPropagation()}
         >
           {statusOptions.map((opt) => (
@@ -162,7 +163,7 @@ export default function RegistrationsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="w-10 h-10 border-4 border-gray-200 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
       </div>
     );
   }
@@ -171,12 +172,27 @@ export default function RegistrationsPage() {
     <div>
       <motion.div className="flex items-center justify-between mb-6" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Registrations</h1>
-          <p className="text-gray-500 text-sm mt-1">{registrations.length} registrations</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Registrations</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{registrations.length} registrations</p>
         </div>
+        <ExportButtons
+          data={registrations as unknown as Record<string, unknown>[]}
+          filename="registrations"
+          title="Registrations List"
+          columns={[
+            { key: "firstName", label: "First Name" },
+            { key: "lastName", label: "Last Name" },
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Phone" },
+            { key: "parentName", label: "Parent" },
+            { key: "programInterest", label: "Program Interest" },
+            { key: "status", label: "Status" },
+            { key: "createdAt", label: "Date" },
+          ]}
+        />
       </motion.div>
 
-      <motion.div className="bg-white rounded-xl border border-gray-200 p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+      <motion.div className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <DataTable
           columns={columns}
           data={registrations}
@@ -200,61 +216,61 @@ export default function RegistrationsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Name</p>
-                <p className="text-sm font-medium text-gray-900 mt-0.5">{selected.firstName} {selected.lastName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Name</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-white mt-0.5">{selected.firstName} {selected.lastName}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Phone</p>
-                <p className="text-sm text-gray-900 mt-0.5">{selected.phone}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Phone</p>
+                <p className="text-sm text-gray-900 dark:text-white mt-0.5">{selected.phone}</p>
               </div>
               {selected.email && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Email</p>
-                  <p className="text-sm text-gray-900 mt-0.5">{selected.email}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Email</p>
+                  <p className="text-sm text-gray-900 dark:text-white mt-0.5">{selected.email}</p>
                 </div>
               )}
               {selected.parentName && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Parent Name</p>
-                  <p className="text-sm text-gray-900 mt-0.5">{selected.parentName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Parent Name</p>
+                  <p className="text-sm text-gray-900 dark:text-white mt-0.5">{selected.parentName}</p>
                 </div>
               )}
               {selected.parentPhone && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Parent Phone</p>
-                  <p className="text-sm text-gray-900 mt-0.5">{selected.parentPhone}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Parent Phone</p>
+                  <p className="text-sm text-gray-900 dark:text-white mt-0.5">{selected.parentPhone}</p>
                 </div>
               )}
               {selected.programInterest && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">Program Interest</p>
-                  <p className="text-sm text-gray-900 mt-0.5">{selected.programInterest}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Program Interest</p>
+                  <p className="text-sm text-gray-900 dark:text-white mt-0.5">{selected.programInterest}</p>
                 </div>
               )}
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Status</p>
                 <div className="mt-1"><StatusBadge status={selected.status} /></div>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Date</p>
-                <p className="text-sm text-gray-900 mt-0.5">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Date</p>
+                <p className="text-sm text-gray-900 dark:text-white mt-0.5">
                   {(() => { try { return format(new Date(selected.createdAt), "MMM d, yyyy HH:mm"); } catch { return "—"; } })()}
                 </p>
               </div>
             </div>
             {selected.message && (
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide">Message</p>
-                <p className="text-sm text-gray-700 mt-1 p-3 bg-gray-50 rounded-lg">{selected.message}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Message</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300 mt-1 p-3 bg-gray-50 dark:bg-slate-800 rounded-lg">{selected.message}</p>
               </div>
             )}
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Admin Notes</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Admin Notes</p>
               <textarea
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-[var(--color-burgundy)] focus:border-transparent outline-none resize-none"
                 placeholder="Add internal notes..."
               />
               <button

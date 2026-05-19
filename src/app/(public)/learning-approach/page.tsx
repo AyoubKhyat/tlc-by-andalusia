@@ -173,7 +173,7 @@ function PrinciplesSection() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -184,7 +184,7 @@ function PrinciplesSection() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Core Principles
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             The Foundation of{" "}
             <span className="text-gradient">Our Approach</span>
           </h2>
@@ -197,15 +197,15 @@ function PrinciplesSection() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.15 }}
-              className="text-center bg-cream rounded-2xl p-8"
+              className="text-center bg-cream dark:bg-slate-800 rounded-2xl p-8"
             >
               <div className="w-16 h-16 rounded-2xl gradient-burgundy flex items-center justify-center mx-auto mb-5">
                 <principle.icon className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-navy mb-3">
+              <h3 className="text-xl font-bold text-navy dark:text-white mb-3">
                 {principle.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
                 {principle.description}
               </p>
             </motion.div>
@@ -243,11 +243,11 @@ function StepItem({ step, index }: { step: typeof steps[number]; index: number }
       </div>
 
       {/* Content */}
-      <div className="flex-1 bg-white rounded-2xl p-6 lg:p-8 shadow-sm">
-        <h3 className="text-2xl font-bold text-navy mb-3">
+      <div className="flex-1 bg-white dark:bg-slate-700 rounded-2xl p-6 lg:p-8 shadow-sm">
+        <h3 className="text-2xl font-bold text-navy dark:text-white mb-3">
           {step.title}
         </h3>
-        <p className="text-gray-600 leading-relaxed mb-5">
+        <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-5">
           {step.description}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -257,7 +257,7 @@ function StepItem({ step, index }: { step: typeof steps[number]; index: number }
               className="flex items-start gap-2 text-sm"
             >
               <CheckCircle className="w-4 h-4 text-burgundy mt-0.5 flex-shrink-0" />
-              <span className="text-gray-500">{detail}</span>
+              <span className="text-gray-500 dark:text-gray-400">{detail}</span>
             </div>
           ))}
         </div>
@@ -271,7 +271,7 @@ function StepsSection() {
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-cream relative overflow-hidden noise-overlay">
+    <section ref={ref} className="py-20 lg:py-28 bg-cream dark:bg-slate-800 relative overflow-hidden noise-overlay">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -282,11 +282,11 @@ function StepsSection() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Your Journey
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             From Placement to{" "}
             <span className="text-gradient">Certification</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             Every student follows a structured path designed to maximize
             learning outcomes and build lasting confidence.
           </p>

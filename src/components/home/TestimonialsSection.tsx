@@ -4,7 +4,16 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
-const testimonials = [
+interface Testimonial {
+  id?: string;
+  name: string;
+  role: string | null;
+  content: string;
+  rating: number;
+  image?: string | null;
+}
+
+const fallbackTestimonials: Testimonial[] = [
   {
     name: "Fatima Z.",
     role: "Adult Student - Level B2",
@@ -32,24 +41,39 @@ export default function TestimonialsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [current, setCurrent] = useState(0);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials);
+
+  useEffect(() => {
+    fetch("/api/testimonials")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setTestimonials(data);
+          setCurrent(0);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % testimonials.length);
-  }, []);
+  }, [testimonials.length]);
 
   const prev = useCallback(() => {
     setCurrent(
       (prev) => (prev - 1 + testimonials.length) % testimonials.length
     );
-  }, []);
+  }, [testimonials.length]);
 
   useEffect(() => {
     const interval = setInterval(next, 6000);
     return () => clearInterval(interval);
   }, [next]);
 
+  const currentTestimonial = testimonials[current];
+
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-cream relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-cream dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -60,10 +84,10 @@ export default function TestimonialsSection() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Testimonials
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             What Our <span className="text-gradient">Students Say</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
             Hear from real students and parents who have experienced the TLC
             difference firsthand.
           </p>
@@ -75,8 +99,7 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="relative max-w-3xl mx-auto"
         >
-          <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl p-8 sm:p-12 min-h-[320px] flex flex-col justify-center">
-            {/* Quote icon */}
+          <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-800 shadow-xl p-8 sm:p-12 min-h-[320px] flex flex-col justify-center">
             <Quote className="absolute top-6 right-6 w-12 h-12 text-burgundy/10" />
 
             <AnimatePresence mode="wait">
@@ -87,9 +110,8 @@ export default function TestimonialsSection() {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.4 }}
               >
-                {/* Stars */}
                 <div className="flex gap-1 mb-6">
-                  {Array.from({ length: testimonials[current].rating }).map(
+                  {Array.from({ length: currentTestimonial.rating }).map(
                     (_, i) => (
                       <Star
                         key={i}
@@ -99,22 +121,20 @@ export default function TestimonialsSection() {
                   )}
                 </div>
 
-                {/* Content */}
-                <p className="text-gray-700 text-lg leading-relaxed mb-8 italic">
-                  &quot;{testimonials[current].content}&quot;
+                <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-8 italic">
+                  &quot;{currentTestimonial.content}&quot;
                 </p>
 
-                {/* Author */}
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full gradient-burgundy flex items-center justify-center text-white font-bold text-lg">
-                    {testimonials[current].name.charAt(0)}
+                    {currentTestimonial.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="font-bold text-navy">
-                      {testimonials[current].name}
+                    <div className="font-bold text-navy dark:text-white">
+                      {currentTestimonial.name}
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {testimonials[current].role}
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {currentTestimonial.role}
                     </div>
                   </div>
                 </div>
@@ -122,7 +142,6 @@ export default function TestimonialsSection() {
             </AnimatePresence>
           </div>
 
-          {/* Navigation */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <button
               onClick={prev}

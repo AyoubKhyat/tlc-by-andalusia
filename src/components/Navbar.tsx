@@ -1,21 +1,25 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineMenuAlt3, HiX } from "react-icons/hi";
+import { Search } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import LanguageSelector from "@/components/LanguageSelector";
+import ThemeToggle from "@/components/ThemeToggle";
+import SearchModal from "@/components/SearchModal";
 
 const navLinkKeys = [
   { key: "nav.home", href: "/" },
   { key: "nav.about", href: "/about" },
   { key: "nav.programs", href: "/programs" },
-  { key: "nav.approach", href: "/approach" },
+  { key: "nav.approach", href: "/learning-approach" },
   { key: "nav.results", href: "/results" },
   { key: "nav.gallery", href: "/gallery" },
+  { key: "nav.blog", href: "/blog" },
   { key: "nav.faq", href: "/faq" },
   { key: "nav.contact", href: "/contact" },
 ];
@@ -23,8 +27,23 @@ const navLinkKeys = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
   const { t } = useLanguage();
+
+  const openSearch = useCallback(() => setSearchOpen(true), []);
+  const closeSearch = useCallback(() => setSearchOpen(false), []);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +77,7 @@ export default function Navbar() {
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-burgundy/5"
+          ? "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-white/20 dark:border-white/10 shadow-lg shadow-burgundy/5"
           : "bg-transparent"
       }`}
     >
@@ -101,7 +120,7 @@ export default function Navbar() {
                           ? "text-burgundy"
                           : "text-white"
                         : isScrolled
-                          ? "text-navy/70 group-hover:text-burgundy"
+                          ? "text-navy/70 dark:text-gray-300 group-hover:text-burgundy"
                           : "text-white/80 group-hover:text-white"
                     }`}
                   >
@@ -124,7 +143,19 @@ export default function Navbar() {
               );
             })}
 
-            {/* Language Selector */}
+            {/* Search, Theme Toggle & Language Selector */}
+            <button
+              onClick={openSearch}
+              className={`p-2 rounded-lg transition-colors duration-300 ${
+                isScrolled
+                  ? "text-navy/60 dark:text-gray-400 hover:text-navy dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800"
+                  : "text-white/70 hover:text-white hover:bg-white/10"
+              }`}
+              aria-label="Search"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+            <ThemeToggle isScrolled={isScrolled} />
             <LanguageSelector isScrolled={isScrolled} />
 
             {/* CTA Button */}
@@ -235,7 +266,15 @@ export default function Navbar() {
                   transition={{ delay: 0.5 }}
                   className="pt-6 border-t border-white/10"
                 >
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center gap-3 mb-4">
+                    <button
+                      onClick={() => { setIsMobileOpen(false); openSearch(); }}
+                      className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                      aria-label="Search"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                    <ThemeToggle isScrolled={false} />
                     <LanguageSelector isScrolled={false} />
                   </div>
                   <Link
@@ -253,6 +292,7 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
+      <SearchModal isOpen={searchOpen} onClose={closeSearch} />
     </motion.header>
   );
 }

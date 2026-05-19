@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Trophy,
   FileText,
+  Newspaper,
   Image,
   MessageSquareQuote,
   HelpCircle,
@@ -22,7 +23,10 @@ import {
   Menu,
   X,
   ChevronLeft,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "@/lib/theme/ThemeContext";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -32,6 +36,7 @@ const navItems = [
   { href: "/admin/exams", label: "Exams", icon: ClipboardList },
   { href: "/admin/results", label: "Results", icon: Trophy },
   { href: "/admin/registrations", label: "Registrations", icon: FileText },
+  { href: "/admin/blog", label: "Blog", icon: Newspaper },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { href: "/admin/gallery", label: "Gallery", icon: Image },
   { href: "/admin/faq", label: "FAQ", icon: HelpCircle },
@@ -42,6 +47,7 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin";
@@ -91,7 +97,18 @@ export default function AdminSidebar() {
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-white/10">
+      <div className="px-3 py-4 border-t border-white/10 space-y-1">
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all w-full"
+        >
+          {theme === "dark" ? (
+            <Sun className="w-5 h-5 flex-shrink-0 text-gray-400" />
+          ) : (
+            <Moon className="w-5 h-5 flex-shrink-0 text-gray-400" />
+          )}
+          {!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
+        </button>
         <button
           onClick={() => signOut({ callbackUrl: "/admin/login" })}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all w-full"

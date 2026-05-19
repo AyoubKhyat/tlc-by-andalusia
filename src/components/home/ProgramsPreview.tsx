@@ -69,7 +69,7 @@ export default function ProgramsPreview() {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="py-20 lg:py-28 bg-white relative overflow-hidden noise-overlay moroccan-pattern-dark">
+    <section ref={ref} className="py-20 lg:py-28 bg-white dark:bg-slate-900 relative overflow-hidden noise-overlay moroccan-pattern-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           className="text-center mb-16"
@@ -80,11 +80,11 @@ export default function ProgramsPreview() {
           <span className="inline-block px-3 py-1 rounded-full text-sm font-medium text-burgundy bg-burgundy/10 mb-4">
             Our Programs
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-navy dark:text-white mb-4">
             Programs for{" "}
             <span className="text-gradient">Every Age &amp; Goal</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
             From young learners to professionals, we offer tailored programs
             that meet you exactly where you are on your language journey.
           </p>
@@ -99,7 +99,7 @@ export default function ProgramsPreview() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <motion.div
-                className="group relative rounded-2xl border border-gray-100 bg-white p-6 h-full shadow-sm overflow-hidden"
+                className="group relative rounded-2xl border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 h-full shadow-sm overflow-hidden"
                 whileHover={{
                   y: -6,
                   boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
@@ -117,13 +117,13 @@ export default function ProgramsPreview() {
                   <program.icon className="w-6 h-6 text-white" />
                 </div>
 
-                <h3 className="text-xl font-bold text-navy mb-1">
+                <h3 className="text-xl font-bold text-navy dark:text-white mb-1">
                   {program.title}
                 </h3>
                 <p className="text-sm text-burgundy font-medium mb-3">
                   {program.ageGroup}
                 </p>
-                <p className="text-gray-600 mb-5 leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-300 mb-5 leading-relaxed">
                   {program.description}
                 </p>
 

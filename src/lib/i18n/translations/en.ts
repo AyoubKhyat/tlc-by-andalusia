@@ -6,6 +6,7 @@ export const en = {
     approach: "Learning Approach",
     results: "Exam Results",
     gallery: "Gallery",
+    blog: "Blog",
     faq: "FAQ",
     contact: "Contact",
     enrollNow: "Enroll Now",
