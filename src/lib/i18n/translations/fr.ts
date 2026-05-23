@@ -5,6 +5,8 @@ export const fr = {
     programs: "Programmes",
     approach: "Approche pédagogique",
     results: "Résultats d'examens",
+    events: "Événements",
+    booking: "Réserver",
     gallery: "Galerie",
     blog: "Blog",
     faq: "FAQ",

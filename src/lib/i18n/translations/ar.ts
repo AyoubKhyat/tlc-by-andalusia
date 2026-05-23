@@ -5,6 +5,8 @@ export const ar = {
     programs: "البرامج",
     approach: "منهجية التعلم",
     results: "نتائج الامتحانات",
+    events: "الفعاليات",
+    booking: "حجز موعد",
     gallery: "المعرض",
     blog: "المدونة",
     faq: "الأسئلة الشائعة",

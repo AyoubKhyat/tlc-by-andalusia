@@ -5,6 +5,7 @@ import { validate, registrationSchema } from "@/lib/validation";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { registrationLimiter } from "@/lib/rateLimit";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
@@ -41,6 +42,13 @@ export async function POST(request: Request) {
         programInterest: programInterest || null,
         message: message || null,
       },
+    });
+
+    await createNotification({
+      type: "registration",
+      title: "New Registration",
+      message: `${firstName} ${lastName} registered${programInterest ? ` for ${programInterest}` : ""}`,
+      link: "/admin/registrations",
     });
 
     return Response.json(registration, { status: 201 });

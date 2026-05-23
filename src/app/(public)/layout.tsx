@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import BackToTop from "@/components/ui/BackToTop";
+import ChatWidget from "@/components/chatbot/ChatWidget";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -59,6 +60,7 @@ export default function PublicLayout({
       <Footer />
       <CookieConsent />
       <BackToTop />
+      <ChatWidget />
     </>
   );
 }

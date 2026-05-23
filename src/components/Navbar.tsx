@@ -18,6 +18,8 @@ const navLinkKeys = [
   { key: "nav.programs", href: "/programs" },
   { key: "nav.approach", href: "/learning-approach" },
   { key: "nav.results", href: "/results" },
+  { key: "nav.events", href: "/events" },
+  { key: "nav.booking", href: "/booking" },
   { key: "nav.gallery", href: "/gallery" },
   { key: "nav.blog", href: "/blog" },
   { key: "nav.faq", href: "/faq" },

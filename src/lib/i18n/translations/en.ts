@@ -5,6 +5,8 @@ export const en = {
     programs: "Programs",
     approach: "Learning Approach",
     results: "Exam Results",
+    events: "Events",
+    booking: "Book a Slot",
     gallery: "Gallery",
     blog: "Blog",
     faq: "FAQ",

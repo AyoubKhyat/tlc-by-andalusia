@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Award } from "lucide-react";
 import { format } from "date-fns";
 import DataTable, { Column } from "@/components/admin/DataTable";
 import Modal from "@/components/admin/Modal";
@@ -283,6 +283,15 @@ export default function ResultsPage() {
             const r = item as unknown as ExamResult;
             return (
               <div className="flex items-center gap-1 justify-end">
+                {r.certificateAvailable && r.status === "passed" && (
+                  <button
+                    onClick={() => window.open(`/api/admin/certificates/${r.id}`, "_blank")}
+                    className="p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+                    title="Download Certificate"
+                  >
+                    <Award size={16} />
+                  </button>
+                )}
                 <button onClick={() => openEdit(r)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><Pencil size={16} /></button>
                 <button onClick={() => openDelete(r)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={16} /></button>
               </div>

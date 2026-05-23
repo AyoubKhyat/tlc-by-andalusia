@@ -67,3 +67,8 @@ export const apiLimiter = rateLimit({
   interval: 60 * 1000,
   maxRequests: 30,
 });
+
+export const bookingLimiter = rateLimit({
+  interval: 15 * 60 * 1000,
+  maxRequests: 3,
+});

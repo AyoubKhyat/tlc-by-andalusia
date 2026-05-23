@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import NextImage from "next/image";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -25,22 +25,38 @@ import {
   ChevronLeft,
   Sun,
   Moon,
+  Shield,
+  Bell,
+  CalendarDays,
+  Clock,
+  CalendarCheck,
+  ClipboardCheck,
+  Bot,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme/ThemeContext";
+import NotificationBell from "./NotificationBell";
+
+type Role = "admin" | "teacher" | "receptionist";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/students", label: "Students", icon: Users },
-  { href: "/admin/programs", label: "Programs", icon: BookOpen },
-  { href: "/admin/groups", label: "Groups", icon: UsersRound },
-  { href: "/admin/exams", label: "Exams", icon: ClipboardList },
-  { href: "/admin/results", label: "Results", icon: Trophy },
-  { href: "/admin/registrations", label: "Registrations", icon: FileText },
-  { href: "/admin/blog", label: "Blog", icon: Newspaper },
-  { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
-  { href: "/admin/gallery", label: "Gallery", icon: Image },
-  { href: "/admin/faq", label: "FAQ", icon: HelpCircle },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "teacher", "receptionist"] as Role[] },
+  { href: "/admin/students", label: "Students", icon: Users, roles: ["admin", "teacher", "receptionist"] as Role[] },
+  { href: "/admin/programs", label: "Programs", icon: BookOpen, roles: ["admin", "receptionist"] as Role[] },
+  { href: "/admin/groups", label: "Groups", icon: UsersRound, roles: ["admin", "teacher"] as Role[] },
+  { href: "/admin/exams", label: "Exams", icon: ClipboardList, roles: ["admin", "teacher"] as Role[] },
+  { href: "/admin/results", label: "Results", icon: Trophy, roles: ["admin", "teacher"] as Role[] },
+  { href: "/admin/attendance", label: "Attendance", icon: ClipboardCheck, roles: ["admin", "teacher"] as Role[] },
+  { href: "/admin/registrations", label: "Registrations", icon: FileText, roles: ["admin", "receptionist"] as Role[] },
+  { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, roles: ["admin", "receptionist"] as Role[] },
+  { href: "/admin/timeslots", label: "Time Slots", icon: Clock, roles: ["admin"] as Role[] },
+  { href: "/admin/events", label: "Events", icon: CalendarDays, roles: ["admin"] as Role[] },
+  { href: "/admin/blog", label: "Blog", icon: Newspaper, roles: ["admin"] as Role[] },
+  { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote, roles: ["admin"] as Role[] },
+  { href: "/admin/gallery", label: "Gallery", icon: Image, roles: ["admin"] as Role[] },
+  { href: "/admin/faq", label: "FAQ", icon: HelpCircle, roles: ["admin"] as Role[] },
+  { href: "/admin/chatbot", label: "Chatbot", icon: Bot, roles: ["admin"] as Role[] },
+  { href: "/admin/users", label: "Users", icon: Shield, roles: ["admin"] as Role[] },
+  { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] as Role[] },
 ];
 
 export default function AdminSidebar() {
@@ -48,6 +64,9 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { data: session } = useSession();
+  const userRole = ((session?.user as { role?: string })?.role || "admin") as Role;
+  const filteredNavItems = navItems.filter((item) => item.roles.includes(userRole));
 
   const isActive = (href: string) => {
     if (href === "/admin") return pathname === "/admin";
@@ -77,7 +96,7 @@ export default function AdminSidebar() {
       </div>
 
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
@@ -98,6 +117,7 @@ export default function AdminSidebar() {
       </nav>
 
       <div className="px-3 py-4 border-t border-white/10 space-y-1">
+        <NotificationBell collapsed={collapsed} />
         <button
           onClick={toggleTheme}
           className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all w-full"

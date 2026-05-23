@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { contactLimiter } from "@/lib/rateLimit";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
@@ -35,6 +36,13 @@ export async function POST(request: Request) {
         message,
         programInterest: "General Inquiry",
       },
+    });
+
+    await createNotification({
+      type: "contact",
+      title: "New Contact Message",
+      message: `${firstName} ${lastName} sent a message`,
+      link: "/admin/registrations",
     });
 
     return Response.json(registration, { status: 201 });

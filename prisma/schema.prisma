@@ -15,6 +15,9 @@ model User {
   role      String   @default("admin")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  groups        Group[]        @relation("TeacherGroups")
+  notifications Notification[]
 }
 
 model Student {
@@ -35,9 +38,10 @@ model Student {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  program     Program?     @relation(fields: [programId], references: [id])
-  group       Group?       @relation(fields: [groupId], references: [id])
-  examResults ExamResult[]
+  program           Program?           @relation(fields: [programId], references: [id])
+  group             Group?             @relation(fields: [groupId], references: [id])
+  examResults       ExamResult[]
+  attendanceRecords AttendanceRecord[]
 }
 
 model Program {
@@ -76,6 +80,10 @@ model Group {
   program      Program       @relation(fields: [programId], references: [id])
   students     Student[]
   examSessions ExamSession[]
+
+  teacherId          String?
+  teacherUser        User?              @relation("TeacherGroups", fields: [teacherId], references: [id])
+  attendanceSessions AttendanceSession[]
 }
 
 model ExamSession {
@@ -104,9 +112,10 @@ model ExamResult {
   percentage           Float
   status               String   @default("pending")
   teacherComment       String?
-  certificateAvailable Boolean  @default(false)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  certificateAvailable   Boolean   @default(false)
+  certificateGeneratedAt DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   student     Student     @relation(fields: [studentId], references: [id])
   examSession ExamSession @relation(fields: [examSessionId], references: [id])
@@ -191,4 +200,103 @@ model BlogPost {
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  endDate     DateTime?
+  time        String?
+  location    String?
+  category    String    @default("general")
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TimeSlot {
+  id        String   @id @default(cuid())
+  date      DateTime
+  startTime String
+  endTime   String
+  type      String   @default("placement_test")
+  capacity  Int      @default(1)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  timeSlotId String
+  firstName  String
+  lastName   String
+  email      String
+  phone      String
+  type       String
+  message    String?
+  status     String   @default("pending")
+  adminNotes String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  timeSlot TimeSlot @relation(fields: [timeSlotId], references: [id])
+}
+
+model AttendanceSession {
+  id        String   @id @default(cuid())
+  groupId   String
+  date      DateTime
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group   Group              @relation(fields: [groupId], references: [id])
+  records AttendanceRecord[]
+
+  @@unique([groupId, date])
+}
+
+model AttendanceRecord {
+  id                  String   @id @default(cuid())
+  attendanceSessionId String
+  studentId           String
+  status              String   @default("present")
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id], onDelete: Cascade)
+  student           Student           @relation(fields: [studentId], references: [id])
+
+  @@unique([attendanceSessionId, studentId])
+}
+
+model ChatbotFAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  keywords  String
+  category  String?
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
