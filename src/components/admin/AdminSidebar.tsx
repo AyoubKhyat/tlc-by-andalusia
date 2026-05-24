@@ -34,6 +34,12 @@ import {
   Bot,
   ScrollText,
   Globe,
+  KanbanSquare,
+  Calendar,
+  ListTodo,
+  BarChart3,
+  DollarSign,
+  User,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme/ThemeContext";
 import NotificationBell from "./NotificationBell";
@@ -49,17 +55,22 @@ const navItems = [
   { href: "/admin/results", label: "Results", icon: Trophy, roles: ["admin", "teacher"] as Role[] },
   { href: "/admin/attendance", label: "Attendance", icon: ClipboardCheck, roles: ["admin", "teacher"] as Role[] },
   { href: "/admin/registrations", label: "Registrations", icon: FileText, roles: ["admin", "receptionist"] as Role[] },
+  { href: "/admin/pipeline", label: "Pipeline", icon: KanbanSquare, roles: ["admin", "receptionist"] as Role[] },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck, roles: ["admin", "receptionist"] as Role[] },
   { href: "/admin/timeslots", label: "Time Slots", icon: Clock, roles: ["admin"] as Role[] },
+  { href: "/admin/calendar", label: "Calendar", icon: Calendar, roles: ["admin", "teacher", "receptionist"] as Role[] },
   { href: "/admin/events", label: "Events", icon: CalendarDays, roles: ["admin"] as Role[] },
+  { href: "/admin/tasks", label: "Tasks", icon: ListTodo, roles: ["admin", "teacher", "receptionist"] as Role[] },
+  { href: "/admin/finance", label: "Finance", icon: DollarSign, roles: ["admin"] as Role[] },
+  { href: "/admin/reports", label: "Reports", icon: BarChart3, roles: ["admin"] as Role[] },
   { href: "/admin/blog", label: "Blog", icon: Newspaper, roles: ["admin"] as Role[] },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote, roles: ["admin"] as Role[] },
   { href: "/admin/gallery", label: "Gallery", icon: Image, roles: ["admin"] as Role[] },
   { href: "/admin/faq", label: "FAQ", icon: HelpCircle, roles: ["admin"] as Role[] },
   { href: "/admin/chatbot", label: "Chatbot", icon: Bot, roles: ["admin"] as Role[] },
-  { href: "/admin/seo", label: "SEO", icon: Globe, roles: ["admin"] as Role[] },
   { href: "/admin/audit-log", label: "Audit Log", icon: ScrollText, roles: ["admin"] as Role[] },
   { href: "/admin/users", label: "Users", icon: Shield, roles: ["admin"] as Role[] },
+  { href: "/admin/profile", label: "Profile", icon: User, roles: ["admin", "teacher", "receptionist"] as Role[] },
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] as Role[] },
 ];
 

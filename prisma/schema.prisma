@@ -42,6 +42,8 @@ model Student {
   group             Group?             @relation(fields: [groupId], references: [id])
   examResults       ExamResult[]
   attendanceRecords AttendanceRecord[]
+  communications    CommunicationLog[]
+  invoices          Invoice[]
 }
 
 model Program {
@@ -326,4 +328,70 @@ model PageMeta {
   noIndex       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model Task {
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  priority     String    @default("medium")
+  status       String    @default("todo")
+  dueDate      DateTime?
+  entity       String?
+  entityId     String?
+  assigneeId   String?
+  assignedById String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  entity    String
+  entityId  String
+  userId    String?
+  userName  String?
+  createdAt DateTime @default(now())
+}
+
+model CommunicationLog {
+  id        String   @id @default(cuid())
+  studentId String
+  type      String
+  direction String   @default("outbound")
+  summary   String
+  userId    String?
+  userName  String?
+  createdAt DateTime @default(now())
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id          String    @id @default(cuid())
+  studentId   String
+  amount      Float
+  description String
+  status      String    @default("pending")
+  dueDate     DateTime?
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  student  Student   @relation(fields: [studentId], references: [id])
+  payments Payment[]
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String
+  amount    Float
+  method    String
+  reference String?
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }

@@ -14,9 +14,12 @@ import {
   ClipboardCheck,
   UsersRound,
   GraduationCap,
+  Zap,
 } from "lucide-react";
 import StatCard from "@/components/admin/StatCard";
 import StatusBadge from "@/components/admin/StatusBadge";
+import GlobalSearch from "@/components/admin/GlobalSearch";
+import QuickActions from "@/components/admin/QuickActions";
 import RegistrationsChart from "@/components/admin/charts/RegistrationsChart";
 import ProgramDistributionChart from "@/components/admin/charts/ProgramDistributionChart";
 import AttendanceChart from "@/components/admin/charts/AttendanceChart";
@@ -154,8 +157,27 @@ export default function AdminDashboardPage() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome to TLC Admin Panel</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome to TLC Admin Panel</p>
+          </div>
+          <GlobalSearch />
+        </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        className="mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="w-5 h-5 text-amber-500" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+        </div>
+        <QuickActions />
       </motion.div>
 
       {/* Stat cards */}
