@@ -71,6 +71,7 @@ const navItems = [
   { href: "/admin/audit-log", label: "Audit Log", icon: ScrollText, roles: ["admin"] as Role[] },
   { href: "/admin/users", label: "Users", icon: Shield, roles: ["admin"] as Role[] },
   { href: "/admin/profile", label: "Profile", icon: User, roles: ["admin", "teacher", "receptionist"] as Role[] },
+  { href: "/admin/guide", label: "Guide", icon: BookOpen, roles: ["admin", "teacher", "receptionist"] as Role[] },
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] as Role[] },
 ];
 
