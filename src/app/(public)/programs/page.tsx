@@ -18,6 +18,7 @@ import {
   ArrowRight,
   LayoutGrid,
   TableProperties,
+  ChevronDown,
 } from "lucide-react";
 import ComparisonTable from "@/components/programs/ComparisonTable";
 
@@ -455,6 +456,7 @@ export default function ProgramsPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [programs, setPrograms] = useState<Program[]>(fallbackPrograms);
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     fetch("/api/programs")
@@ -548,6 +550,62 @@ export default function ProgramsPage() {
                 transition={{ duration: 0.3 }}
               >
                 <ComparisonTable programs={filteredPrograms} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* Compare Programs Section */}
+      <section className="py-16 lg:py-20 bg-cream dark:bg-slate-800 relative overflow-hidden noise-overlay">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-8">
+            <motion.h2
+              className="text-2xl sm:text-3xl font-bold text-navy dark:text-white mb-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              Compare Programs
+            </motion.h2>
+            <motion.p
+              className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Not sure which program is right for you? Compare them side by side.
+            </motion.p>
+            <button
+              onClick={() => setShowCompare((v) => !v)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl gradient-burgundy text-white font-semibold text-sm hover:shadow-lg hover:shadow-burgundy/20 transition-all duration-300"
+            >
+              <TableProperties className="w-4 h-4" />
+              {showCompare ? "Hide" : "Show"} Comparison Table
+              <motion.span
+                animate={{ rotate: showCompare ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="inline-flex"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </motion.span>
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showCompare && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="pt-4">
+                  <ComparisonTable programs={filteredPrograms} />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

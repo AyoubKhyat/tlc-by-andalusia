@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import KeyboardShortcuts from "@/components/admin/KeyboardShortcuts";
 import { Toaster } from "react-hot-toast";
 import Providers from "@/components/Providers";
 import Breadcrumbs from "@/components/admin/Breadcrumbs";
@@ -32,6 +33,7 @@ export default async function AdminLayout({
     <Providers>
       <div className="min-h-screen bg-gray-50 dark:bg-slate-950">
         <AdminSidebar />
+        <KeyboardShortcuts />
         <main className="lg:pl-64 min-h-screen transition-all duration-300">
           <div className="p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
             <Breadcrumbs />

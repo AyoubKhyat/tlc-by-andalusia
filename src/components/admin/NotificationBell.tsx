@@ -26,13 +26,21 @@ export default function NotificationBell({ collapsed }: { collapsed: boolean }) 
   const [count, setCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [pulse, setPulse] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const prevCountRef = useRef(0);
+  const isVisibleRef = useRef(true);
 
   const fetchCount = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/notifications/unread-count");
       if (res.ok) {
         const data = await res.json();
+        if (data.count > prevCountRef.current) {
+          setPulse(true);
+          setTimeout(() => setPulse(false), 2000);
+        }
+        prevCountRef.current = data.count;
         setCount(data.count);
       }
     } catch {}
@@ -47,8 +55,22 @@ export default function NotificationBell({ collapsed }: { collapsed: boolean }) 
 
   useEffect(() => {
     fetchCount();
-    const interval = setInterval(fetchCount, 30000);
-    return () => clearInterval(interval);
+
+    const handleVisibility = () => {
+      isVisibleRef.current = !document.hidden;
+      // Fetch immediately when tab becomes visible again
+      if (!document.hidden) fetchCount();
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    const interval = setInterval(() => {
+      if (isVisibleRef.current) fetchCount();
+    }, 30000);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [fetchCount]);
 
   useEffect(() => {
@@ -82,7 +104,7 @@ export default function NotificationBell({ collapsed }: { collapsed: boolean }) 
         <Bell className="w-5 h-5 flex-shrink-0 text-gray-400" />
         {!collapsed && <span>Notifications</span>}
         {count > 0 && (
-          <span className="absolute top-1 left-6 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+          <span className={`absolute top-1 left-6 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-red-500 rounded-full transition-transform ${pulse ? "animate-pulse scale-125" : ""}`}>
             {count > 99 ? "99+" : count}
           </span>
         )}

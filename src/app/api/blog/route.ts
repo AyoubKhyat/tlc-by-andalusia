@@ -7,9 +7,19 @@ export async function GET(request: Request) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "9")));
     const category = searchParams.get("category");
 
+    const search = searchParams.get("search")?.trim() || "";
+
     const where = {
       published: true,
       ...(category && category !== "all" ? { category } : {}),
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search, mode: "insensitive" as const } },
+              { excerpt: { contains: search, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
     };
 
     const [posts, total] = await Promise.all([

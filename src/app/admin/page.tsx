@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
@@ -15,7 +15,9 @@ import {
   UsersRound,
   GraduationCap,
   Zap,
+  RotateCcw,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import StatCard from "@/components/admin/StatCard";
 import StatusBadge from "@/components/admin/StatusBadge";
@@ -101,8 +103,12 @@ export default function AdminDashboardPage() {
   const [period, setPeriod] = useState("30d");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [secondsAgo, setSecondsAgo] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const isVisibleRef = useRef(true);
 
-  const fetchDashboard = useCallback(async () => {
+  const fetchDashboard = useCallback(async (silent = false) => {
     try {
       const [dashRes, regsRes] = await Promise.all([
         fetch("/api/admin/dashboard"),
@@ -116,8 +122,12 @@ export default function AdminDashboardPage() {
         const regsData = await regsRes.json();
         setRecentRegs(Array.isArray(regsData) ? regsData.slice(0, 5) : []);
       }
+      setLastUpdated(new Date());
+      setSecondsAgo(0);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load dashboard");
+      if (!silent) {
+        setError(err instanceof Error ? err.message : "Failed to load dashboard");
+      }
     } finally {
       setLoading(false);
     }
@@ -141,6 +151,41 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     fetchAnalytics();
   }, [fetchAnalytics]);
+
+  // Auto-refresh every 60 seconds, paused when tab is not visible
+  useEffect(() => {
+    const handleVisibility = () => {
+      isVisibleRef.current = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    const interval = setInterval(() => {
+      if (isVisibleRef.current) {
+        fetchDashboard(true);
+        fetchAnalytics();
+      }
+    }, 60000);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(interval);
+    };
+  }, [fetchDashboard, fetchAnalytics]);
+
+  // "Last updated X seconds ago" ticker
+  useEffect(() => {
+    const ticker = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - lastUpdated.getTime()) / 1000));
+    }, 1000);
+    return () => clearInterval(ticker);
+  }, [lastUpdated]);
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    await Promise.all([fetchDashboard(true), fetchAnalytics()]);
+    setIsRefreshing(false);
+    toast.success("Dashboard refreshed");
+  };
 
   if (loading) {
     return (
@@ -186,7 +231,19 @@ export default function AdminDashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Welcome to TLC Admin Panel</p>
+            <div className="flex items-center gap-2 mt-1">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Last updated: {secondsAgo < 5 ? "just now" : `${secondsAgo}s ago`}
+              </p>
+              <button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all disabled:opacity-50"
+                title="Refresh dashboard"
+              >
+                <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+              </button>
+            </div>
           </div>
           <GlobalSearch />
         </div>

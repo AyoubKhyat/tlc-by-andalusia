@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Calendar, User, ArrowRight, Newspaper, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, User, ArrowRight, Newspaper, ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface BlogPost {
@@ -33,15 +33,26 @@ const categoryColors: Record<string, string> = {
   announcements: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
 };
 
-const POSTS_PER_PAGE = 9;
+const POSTS_PER_PAGE = 6;
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
@@ -50,6 +61,7 @@ export default function BlogPage() {
         page: String(page),
         limit: String(POSTS_PER_PAGE),
         ...(filter !== "all" ? { category: filter } : {}),
+        ...(debouncedSearch ? { search: debouncedSearch } : {}),
       });
       const res = await fetch(`/api/blog?${params}`);
       const data = await res.json();
@@ -67,7 +79,7 @@ export default function BlogPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filter]);
+  }, [page, filter, debouncedSearch]);
 
   useEffect(() => {
     fetchPosts();
@@ -75,6 +87,12 @@ export default function BlogPage() {
 
   const handleFilterChange = (value: string) => {
     setFilter(value);
+    setPage(1);
+  };
+
+  const clearSearch = () => {
+    setSearch("");
+    setDebouncedSearch("");
     setPage(1);
   };
 
@@ -125,8 +143,31 @@ export default function BlogPage() {
       {/* Content */}
       <section className="py-16 lg:py-24 bg-cream dark:bg-slate-900 relative overflow-hidden noise-overlay">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          {/* Search bar */}
+          <div className="max-w-xl mx-auto mb-8">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500 pointer-events-none" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search posts by title or excerpt..."
+                className="w-full pl-12 pr-10 py-3 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-burgundy/40 focus:border-burgundy transition-all duration-300 text-sm"
+              />
+              {search && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 dark:text-gray-500 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Category filters */}
-          <div className="flex gap-3 justify-center mb-12 flex-wrap">
+          <div className="flex gap-3 justify-center mb-8 flex-wrap">
             {categories.map((cat) => (
               <button
                 key={cat.value}
@@ -142,6 +183,30 @@ export default function BlogPage() {
             ))}
           </div>
 
+          {/* Post count */}
+          {!loading && total > 0 && (
+            <div className="text-center mb-8">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Showing{" "}
+                <span className="font-semibold text-navy dark:text-white">
+                  {posts.length}
+                </span>{" "}
+                of{" "}
+                <span className="font-semibold text-navy dark:text-white">
+                  {total}
+                </span>{" "}
+                post{total !== 1 ? "s" : ""}
+                {debouncedSearch && (
+                  <>
+                    {" "}matching &ldquo;
+                    <span className="font-medium text-burgundy">{debouncedSearch}</span>
+                    &rdquo;
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <div className="w-10 h-10 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
@@ -149,8 +214,30 @@ export default function BlogPage() {
           ) : posts.length === 0 ? (
             <div className="text-center py-20">
               <Newspaper className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-navy dark:text-white mb-2">No posts yet</h3>
-              <p className="text-gray-500 dark:text-gray-400">Check back soon for updates!</p>
+              {debouncedSearch || filter !== "all" ? (
+                <>
+                  <h3 className="text-xl font-bold text-navy dark:text-white mb-2">
+                    No matching posts
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">
+                    No posts found{debouncedSearch ? ` for "${debouncedSearch}"` : ""}{filter !== "all" ? ` in ${filter}` : ""}. Try adjusting your search or filters.
+                  </p>
+                  <button
+                    onClick={() => {
+                      clearSearch();
+                      setFilter("all");
+                    }}
+                    className="px-5 py-2.5 rounded-full text-sm font-medium gradient-burgundy text-white shadow-lg shadow-burgundy/20 transition-all duration-300 hover:shadow-xl"
+                  >
+                    Clear all filters
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-xl font-bold text-navy dark:text-white mb-2">No posts yet</h3>
+                  <p className="text-gray-500 dark:text-gray-400">Check back soon for updates!</p>
+                </>
+              )}
             </div>
           ) : (
             <>
@@ -211,55 +298,53 @@ export default function BlogPage() {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="mt-12 flex items-center justify-center gap-2">
+                <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    aria-label="Previous page"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
                   </button>
 
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                    .reduce<(number | "...")[]>((acc, p, i, arr) => {
-                      if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...");
-                      acc.push(p);
-                      return acc;
-                    }, [])
-                    .map((item, i) =>
-                      item === "..." ? (
-                        <span key={`dots-${i}`} className="px-2 text-gray-400 dark:text-gray-500">
-                          ...
-                        </span>
-                      ) : (
-                        <button
-                          key={item}
-                          onClick={() => setPage(item as number)}
-                          className={`w-10 h-10 rounded-xl text-sm font-medium transition-all duration-300 ${
-                            page === item
-                              ? "gradient-burgundy text-white shadow-lg shadow-burgundy/20"
-                              : "border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
-                          }`}
-                        >
-                          {item}
-                        </button>
-                      )
-                    )}
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                      .reduce<(number | "...")[]>((acc, p, i, arr) => {
+                        if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push("...");
+                        acc.push(p);
+                        return acc;
+                      }, [])
+                      .map((item, i) =>
+                        item === "..." ? (
+                          <span key={`dots-${i}`} className="px-2 text-gray-400 dark:text-gray-500">
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={item}
+                            onClick={() => setPage(item as number)}
+                            className={`w-10 h-10 rounded-xl text-sm font-medium transition-all duration-300 ${
+                              page === item
+                                ? "gradient-burgundy text-white shadow-lg shadow-burgundy/20"
+                                : "border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800"
+                            }`}
+                          >
+                            {item}
+                          </button>
+                        )
+                      )}
+                  </div>
 
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
-                    className="p-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    aria-label="Next page"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    Next
+                    <ChevronRight className="w-4 h-4" />
                   </button>
-
-                  <span className="ml-4 text-sm text-gray-400 dark:text-gray-500">
-                    {total} post{total !== 1 ? "s" : ""}
-                  </span>
                 </div>
               )}
             </>
