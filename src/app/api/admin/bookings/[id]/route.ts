@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireRole } from "@/lib/authz";
+import { logAction } from "@/lib/audit";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -23,6 +24,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       include: { timeSlot: true },
     });
 
+    logAction({ action: "update", entity: "Booking", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { status: existing.status }, after: { status: booking.status }, request });
+
     return Response.json(booking);
   } catch (error) {
     console.error("Booking update error:", error);
@@ -41,6 +44,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     if (!existing) return Response.json({ error: "Booking not found" }, { status: 404 });
 
     await prisma.booking.delete({ where: { id } });
+
+    logAction({ action: "delete", entity: "Booking", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { firstName: existing.firstName, lastName: existing.lastName, email: existing.email }, request });
+
     return Response.json({ message: "Booking deleted successfully" });
   } catch (error) {
     console.error("Booking delete error:", error);

@@ -5,6 +5,8 @@ import type { NextRequest } from "next/server";
 const roleRouteMap: Record<string, string[]> = {
   "/admin/users": ["admin"],
   "/admin/settings": ["admin"],
+  "/admin/seo": ["admin"],
+  "/admin/audit-log": ["admin"],
   "/admin/blog": ["admin"],
   "/admin/testimonials": ["admin"],
   "/admin/gallery": ["admin"],

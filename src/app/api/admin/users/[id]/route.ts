@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireRole, getUserId } from "@/lib/authz";
+import { logAction } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -66,6 +67,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
     });
 
+    logAction({ action: "update", entity: "User", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { email: existing.email, name: existing.name, role: existing.role }, after: user, request });
+
     return Response.json(user);
   } catch (error) {
     console.error("User update error:", error);
@@ -91,6 +94,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     await prisma.user.delete({ where: { id } });
+
+    logAction({ action: "delete", entity: "User", entityId: id, userId: currentUserId || undefined, userName: session!.user?.name || undefined, before: { email: existing.email, name: existing.name, role: existing.role }, request });
 
     return Response.json({ message: "User deleted successfully" });
   } catch (error) {

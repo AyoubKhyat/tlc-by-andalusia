@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 
 export async function GET(
   request: Request,
@@ -80,6 +81,8 @@ export async function PUT(
       },
     });
 
+    logAction({ action: "update", entity: "Student", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { firstName: existing.firstName, lastName: existing.lastName, status: existing.status }, after: { firstName: student.firstName, lastName: student.lastName, status: student.status }, request });
+
     return Response.json(student);
   } catch (error) {
     console.error("Student update error:", error);
@@ -108,6 +111,8 @@ export async function DELETE(
     }
 
     await prisma.student.delete({ where: { id } });
+
+    logAction({ action: "delete", entity: "Student", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { studentId: existing.studentId, firstName: existing.firstName, lastName: existing.lastName }, request });
 
     return Response.json({ message: "Student deleted successfully" });
   } catch (error) {

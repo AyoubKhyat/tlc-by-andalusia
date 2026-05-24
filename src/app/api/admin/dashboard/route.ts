@@ -15,6 +15,10 @@ export async function GET() {
       upcomingExams,
       recentRegistrations,
       examResults,
+      totalBookings,
+      pendingBookings,
+      attendanceRate,
+      totalGroups,
     ] = await Promise.all([
       prisma.student.count(),
       prisma.program.count({ where: { active: true } }),
@@ -22,7 +26,7 @@ export async function GET() {
       prisma.registration.count({
         where: {
           createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // last 30 days
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           },
         },
       }),
@@ -30,13 +34,27 @@ export async function GET() {
         by: ["status"],
         _count: { status: true },
       }),
+      prisma.booking.count(),
+      prisma.booking.count({ where: { status: "pending" } }),
+      prisma.attendanceRecord.groupBy({
+        by: ["status"],
+        _count: { status: true },
+      }),
+      prisma.group.count({ where: { active: true } }),
     ]);
 
-    // Build pass/fail statistics
     const passFailStats: Record<string, number> = {};
     for (const result of examResults) {
       passFailStats[result.status] = result._count.status;
     }
+
+    const attendanceStats: Record<string, number> = {};
+    for (const rec of attendanceRate) {
+      attendanceStats[rec.status] = rec._count.status;
+    }
+    const totalAttendance = Object.values(attendanceStats).reduce((a, b) => a + b, 0);
+    const presentCount = (attendanceStats["present"] || 0) + (attendanceStats["late"] || 0);
+    const overallAttendanceRate = totalAttendance > 0 ? Math.round((presentCount / totalAttendance) * 100) : 0;
 
     return Response.json({
       totalStudents,
@@ -44,6 +62,10 @@ export async function GET() {
       upcomingExams,
       recentRegistrations,
       passFailStats,
+      totalBookings,
+      pendingBookings,
+      overallAttendanceRate,
+      totalGroups,
     });
   } catch (error) {
     console.error("Dashboard stats error:", error);

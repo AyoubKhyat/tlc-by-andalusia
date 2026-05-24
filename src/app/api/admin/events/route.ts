@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireRole } from "@/lib/authz";
+import { logAction } from "@/lib/audit";
 
 export async function GET() {
   try {
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
         active: active !== undefined ? active : true,
       },
     });
+
+    logAction({ action: "create", entity: "Event", entityId: event.id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, after: { title, category, date }, request });
 
     return Response.json(event, { status: 201 });
   } catch (error) {

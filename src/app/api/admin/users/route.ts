@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireRole } from "@/lib/authz";
+import { logAction } from "@/lib/audit";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
@@ -56,6 +57,8 @@ export async function POST(request: Request) {
       },
       select: { id: true, email: true, name: true, role: true, createdAt: true, updatedAt: true },
     });
+
+    logAction({ action: "create", entity: "User", entityId: user.id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, after: user, request });
 
     return Response.json(user, { status: 201 });
   } catch (error) {

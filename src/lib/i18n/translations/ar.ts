@@ -11,6 +11,7 @@ export const ar = {
     blog: "المدونة",
     faq: "الأسئلة الشائعة",
     contact: "اتصل بنا",
+    more: "المزيد",
     enrollNow: "سجل الآن",
   },
   hero: {

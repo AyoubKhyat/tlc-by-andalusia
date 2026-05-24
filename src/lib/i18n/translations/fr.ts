@@ -11,6 +11,7 @@ export const fr = {
     blog: "Blog",
     faq: "FAQ",
     contact: "Contact",
+    more: "Plus",
     enrollNow: "S'inscrire",
   },
   hero: {

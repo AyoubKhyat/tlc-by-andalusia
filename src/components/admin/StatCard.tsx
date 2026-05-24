@@ -6,7 +6,7 @@ import { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
   title: string;
-  value: number;
+  value: number | string;
   icon: LucideIcon;
   color?: "burgundy" | "navy" | "emerald" | "purple";
   delay?: number;
@@ -20,10 +20,15 @@ const colorClasses: Record<string, { bg: string; icon: string; text: string }> =
 };
 
 export default function StatCard({ title, value, icon: Icon, color = "burgundy", delay = 0 }: StatCardProps) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const isNumeric = typeof value === "number";
+  const [displayValue, setDisplayValue] = useState(isNumeric ? 0 : value);
   const colors = colorClasses[color];
 
   useEffect(() => {
+    if (!isNumeric) {
+      setDisplayValue(value);
+      return;
+    }
     if (value === 0) {
       setDisplayValue(0);
       return;
@@ -32,10 +37,10 @@ export default function StatCard({ title, value, icon: Icon, color = "burgundy",
     const steps = 30;
     const stepTime = duration / steps;
     let current = 0;
-    const increment = value / steps;
+    const increment = (value as number) / steps;
     const timer = setInterval(() => {
       current += increment;
-      if (current >= value) {
+      if (current >= (value as number)) {
         setDisplayValue(value);
         clearInterval(timer);
       } else {
@@ -43,7 +48,7 @@ export default function StatCard({ title, value, icon: Icon, color = "burgundy",
       }
     }, stepTime);
     return () => clearInterval(timer);
-  }, [value]);
+  }, [value, isNumeric]);
 
   return (
     <motion.div

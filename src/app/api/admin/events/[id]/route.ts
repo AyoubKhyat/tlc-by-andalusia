@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { requireRole } from "@/lib/authz";
+import { logAction } from "@/lib/audit";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -30,6 +31,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       },
     });
 
+    logAction({ action: "update", entity: "Event", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { title: existing.title, active: existing.active }, after: { title: event.title, active: event.active }, request });
+
     return Response.json(event);
   } catch (error) {
     console.error("Event update error:", error);
@@ -50,6 +53,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     await prisma.event.delete({ where: { id } });
+
+    logAction({ action: "delete", entity: "Event", entityId: id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, before: { title: existing.title }, request });
+
     return Response.json({ message: "Event deleted successfully" });
   } catch (error) {
     console.error("Event delete error:", error);

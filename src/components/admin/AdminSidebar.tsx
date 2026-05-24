@@ -32,6 +32,8 @@ import {
   CalendarCheck,
   ClipboardCheck,
   Bot,
+  ScrollText,
+  Globe,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme/ThemeContext";
 import NotificationBell from "./NotificationBell";
@@ -55,6 +57,8 @@ const navItems = [
   { href: "/admin/gallery", label: "Gallery", icon: Image, roles: ["admin"] as Role[] },
   { href: "/admin/faq", label: "FAQ", icon: HelpCircle, roles: ["admin"] as Role[] },
   { href: "/admin/chatbot", label: "Chatbot", icon: Bot, roles: ["admin"] as Role[] },
+  { href: "/admin/seo", label: "SEO", icon: Globe, roles: ["admin"] as Role[] },
+  { href: "/admin/audit-log", label: "Audit Log", icon: ScrollText, roles: ["admin"] as Role[] },
   { href: "/admin/users", label: "Users", icon: Shield, roles: ["admin"] as Role[] },
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: ["admin"] as Role[] },
 ];

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logAction } from "@/lib/audit";
 
 function generateStudentId(): string {
   const year = new Date().getFullYear().toString().slice(-2);
@@ -97,6 +98,8 @@ export async function POST(request: Request) {
         group: true,
       },
     });
+
+    logAction({ action: "create", entity: "Student", entityId: student.id, userId: (session!.user as { id?: string })?.id, userName: session!.user?.name || undefined, after: { studentId: student.studentId, firstName, lastName }, request });
 
     return Response.json(student, { status: 201 });
   } catch (error) {

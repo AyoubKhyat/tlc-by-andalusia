@@ -1,37 +1,45 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiOutlineMenuAlt3, HiX } from "react-icons/hi";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 import LanguageSelector from "@/components/LanguageSelector";
 import ThemeToggle from "@/components/ThemeToggle";
 import SearchModal from "@/components/SearchModal";
 
-const navLinkKeys = [
+const primaryLinks = [
   { key: "nav.home", href: "/" },
   { key: "nav.about", href: "/about" },
   { key: "nav.programs", href: "/programs" },
-  { key: "nav.approach", href: "/learning-approach" },
   { key: "nav.results", href: "/results" },
   { key: "nav.events", href: "/events" },
   { key: "nav.booking", href: "/booking" },
+  { key: "nav.contact", href: "/contact" },
+];
+
+const moreLinks = [
+  { key: "nav.approach", href: "/learning-approach" },
   { key: "nav.gallery", href: "/gallery" },
   { key: "nav.blog", href: "/blog" },
   { key: "nav.faq", href: "/faq" },
-  { key: "nav.contact", href: "/contact" },
 ];
+
+const allLinks = [...primaryLinks, ...moreLinks];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const { t } = useLanguage();
+  const isMoreActive = moreLinks.some((l) => pathname === l.href);
 
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
@@ -55,10 +63,22 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   useEffect(() => {
     setIsMobileOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
+
+  // Close "More" dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -106,14 +126,14 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinkKeys.map((link) => {
+          <div className="hidden lg:flex items-center gap-0.5">
+            {primaryLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.key}
                   href={link.href}
-                  className="relative px-3 py-2 text-sm font-medium transition-colors duration-300 group"
+                  className="relative px-2.5 py-2 text-sm font-medium transition-colors duration-300 group"
                 >
                   <span
                     className={`relative z-10 transition-colors duration-300 ${
@@ -145,6 +165,58 @@ export default function Navbar() {
               );
             })}
 
+            {/* More Dropdown */}
+            <div ref={moreRef} className="relative">
+              <button
+                onClick={() => setMoreOpen(!moreOpen)}
+                className={`relative flex items-center gap-0.5 px-2.5 py-2 text-sm font-medium transition-colors duration-300 group ${
+                  isMoreActive
+                    ? isScrolled ? "text-burgundy" : "text-white"
+                    : isScrolled
+                      ? "text-navy/70 dark:text-gray-300 hover:text-burgundy"
+                      : "text-white/80 hover:text-white"
+                }`}
+              >
+                {t("nav.more") || "More"}
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
+                {isMoreActive && (
+                  <motion.div
+                    layoutId="activeNav"
+                    className={`absolute inset-x-1 -bottom-0.5 h-0.5 rounded-full ${isScrolled ? "bg-burgundy" : "bg-white"}`}
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </button>
+              <AnimatePresence>
+                {moreOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 overflow-hidden py-1"
+                  >
+                    {moreLinks.map((link) => {
+                      const isActive = pathname === link.href;
+                      return (
+                        <Link
+                          key={link.key}
+                          href={link.href}
+                          className={`block px-4 py-2.5 text-sm font-medium transition-colors ${
+                            isActive
+                              ? "text-burgundy bg-burgundy/5"
+                              : "text-gray-700 dark:text-gray-300 hover:text-burgundy hover:bg-gray-50 dark:hover:bg-slate-800"
+                          }`}
+                        >
+                          {t(link.key)}
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
             {/* Search, Theme Toggle & Language Selector */}
             <button
               onClick={openSearch}
@@ -165,7 +237,7 @@ export default function Navbar() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="ml-4 px-6 py-2.5 bg-burgundy-light text-white text-sm font-semibold rounded-full shadow-lg shadow-burgundy/25 hover:bg-burgundy hover:shadow-burgundy/40 transition-all duration-300"
+                className="ml-3 px-5 py-2.5 bg-burgundy-light text-white text-sm font-semibold rounded-full shadow-lg shadow-burgundy/25 hover:bg-burgundy hover:shadow-burgundy/40 transition-all duration-300"
               >
                 {t("nav.enrollNow")}
               </motion.button>
@@ -237,7 +309,7 @@ export default function Navbar() {
               <div className="flex flex-col h-full pt-24 pb-8 px-6">
                 {/* Mobile Nav Links */}
                 <div className="flex-1 space-y-1">
-                  {navLinkKeys.map((link, index) => {
+                  {allLinks.map((link, index) => {
                     const isActive = pathname === link.href;
                     return (
                       <motion.div

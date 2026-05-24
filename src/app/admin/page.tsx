@@ -10,11 +10,19 @@ import {
   TrendingUp,
   Clock,
   BarChart3,
+  CalendarCheck,
+  ClipboardCheck,
+  UsersRound,
+  GraduationCap,
 } from "lucide-react";
 import StatCard from "@/components/admin/StatCard";
 import StatusBadge from "@/components/admin/StatusBadge";
 import RegistrationsChart from "@/components/admin/charts/RegistrationsChart";
 import ProgramDistributionChart from "@/components/admin/charts/ProgramDistributionChart";
+import AttendanceChart from "@/components/admin/charts/AttendanceChart";
+import PerformanceChart from "@/components/admin/charts/PerformanceChart";
+import EnrollmentTrendChart from "@/components/admin/charts/EnrollmentTrendChart";
+import BookingStatsChart from "@/components/admin/charts/BookingStatsChart";
 
 interface DashboardStats {
   totalStudents: number;
@@ -22,6 +30,10 @@ interface DashboardStats {
   upcomingExams: number;
   recentRegistrations: number;
   passFailStats: Record<string, number>;
+  totalBookings: number;
+  pendingBookings: number;
+  overallAttendanceRate: number;
+  totalGroups: number;
 }
 
 interface Registration {
@@ -38,6 +50,12 @@ interface AnalyticsData {
   registrationsByDate: Array<{ date: string; count: number }>;
   programDistribution: Array<{ program: string; count: number }>;
   registrationsByStatus: Array<{ status: string; count: number }>;
+  attendanceByDate: Array<{ date: string; rate: number; total: number; present: number }>;
+  bookingsByType: Array<{ type: string; count: number }>;
+  bookingsByStatus: Array<{ status: string; count: number }>;
+  performanceDistribution: Array<{ range: string; count: number }>;
+  enrollmentTrend: Array<{ month: string; count: number }>;
+  studentsByStatus: Array<{ status: string; count: number }>;
 }
 
 const periods = [
@@ -141,11 +159,17 @@ export default function AdminDashboardPage() {
       </motion.div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <StatCard title="Total Students" value={stats.totalStudents} icon={Users} color="burgundy" delay={0} />
         <StatCard title="Active Programs" value={stats.activePrograms} icon={BookOpen} color="navy" delay={0.1} />
         <StatCard title="New Registrations" value={stats.recentRegistrations} icon={FileText} color="burgundy" delay={0.2} />
         <StatCard title="Upcoming Exams" value={stats.upcomingExams} icon={Trophy} color="emerald" delay={0.3} />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard title="Attendance Rate" value={`${stats.overallAttendanceRate}%`} icon={ClipboardCheck} color="emerald" delay={0.4} />
+        <StatCard title="Total Bookings" value={stats.totalBookings} icon={CalendarCheck} color="navy" delay={0.5} />
+        <StatCard title="Pending Bookings" value={stats.pendingBookings} icon={Clock} color="burgundy" delay={0.6} />
+        <StatCard title="Active Groups" value={stats.totalGroups} icon={UsersRound} color="navy" delay={0.7} />
       </div>
 
       {/* Analytics charts */}
@@ -195,7 +219,62 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* Existing panels */}
+      {/* Advanced Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <motion.div
+          className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+        >
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+            <ClipboardCheck className="w-4 h-4 text-emerald-500" />
+            Attendance Rate Over Time
+          </h3>
+          <AttendanceChart data={analytics?.attendanceByDate || []} />
+        </motion.div>
+
+        <motion.div
+          className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+            <GraduationCap className="w-4 h-4 text-blue-500" />
+            Student Performance Distribution
+          </h3>
+          <PerformanceChart data={analytics?.performanceDistribution || []} />
+        </motion.div>
+
+        <motion.div
+          className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+        >
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-[var(--color-navy)]" />
+            Enrollment Trend
+          </h3>
+          <EnrollmentTrendChart data={analytics?.enrollmentTrend || []} />
+        </motion.div>
+
+        <motion.div
+          className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+            <CalendarCheck className="w-4 h-4 text-[var(--color-burgundy)]" />
+            Booking Statistics
+          </h3>
+          <BookingStatsChart typeData={analytics?.bookingsByType || []} statusData={analytics?.bookingsByStatus || []} />
+        </motion.div>
+      </div>
+
+      {/* Quick Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <motion.div
           className="bg-white dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700 p-6"
