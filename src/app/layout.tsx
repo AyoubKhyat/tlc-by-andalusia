@@ -37,6 +37,10 @@ export const metadata: Metadata = {
     "French courses",
   ],
   authors: [{ name: "TLC by Andalusia Academy" }],
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
   openGraph: {
     title: "TLC by Andalusia Academy | English, The Natural Way",
     description:
