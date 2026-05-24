@@ -23,9 +23,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (stored === "dark" || stored === "light") {
       setTheme(stored);
       if (stored === "dark") document.documentElement.classList.add("dark");
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
     }
     setMounted(true);
   }, []);
