@@ -72,6 +72,7 @@ export default function GalleryPreview() {
                 src={item.image}
                 alt={item.label}
                 fill
+                loading="lazy"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />

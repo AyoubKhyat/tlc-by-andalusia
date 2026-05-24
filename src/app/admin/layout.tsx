@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Toaster } from "react-hot-toast";
 import Providers from "@/components/Providers";
+import Breadcrumbs from "@/components/admin/Breadcrumbs";
 
 export const metadata = {
   title: {
@@ -33,6 +34,7 @@ export default async function AdminLayout({
         <AdminSidebar />
         <main className="lg:pl-64 min-h-screen transition-all duration-300">
           <div className="p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
+            <Breadcrumbs />
             {children}
           </div>
         </main>

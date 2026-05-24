@@ -97,81 +97,94 @@ function TaskCard({
   onEdit,
   onDelete,
   onMove,
+  isDragging,
+  onDragStart,
+  onDragEnd,
 }: {
   task: Task;
   onEdit: (t: Task) => void;
   onDelete: (t: Task) => void;
   onMove: (t: Task, status: Status) => void;
+  isDragging?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: () => void;
 }) {
   const otherStatuses = STATUSES.filter((s) => s.key !== task.status);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.2 }}
-      className="group bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => onEdit(task)}
+    <div
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={isDragging ? "opacity-50" : ""}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <GripVertical
-            size={14}
-            className="text-gray-300 dark:text-slate-600 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-          />
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-            {task.title}
-          </h4>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.2 }}
+        className="group bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => onEdit(task)}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <GripVertical
+              size={14}
+              className="text-gray-300 dark:text-slate-600 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab"
+            />
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+              {task.title}
+            </h4>
+          </div>
+          <PriorityBadge priority={task.priority} />
         </div>
-        <PriorityBadge priority={task.priority} />
-      </div>
 
-      {/* Description */}
-      {task.description && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 ml-[22px]">
-          {task.description}
-        </p>
-      )}
-
-      {/* Footer */}
-      <div className="flex items-center justify-between ml-[22px]">
-        {task.dueDate ? (
-          <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-            <Calendar size={12} />
-            {formatDate(task.dueDate)}
-          </span>
-        ) : (
-          <span />
+        {/* Description */}
+        {task.description && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mb-3 ml-[22px]">
+            {task.description}
+          </p>
         )}
 
-        {/* Quick actions */}
-        <div
-          className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {otherStatuses.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => onMove(task, s.key)}
-              className="p-1 text-gray-400 hover:text-[var(--color-burgundy)] hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors"
-              title={`Move to ${s.label}`}
-            >
-              <ArrowRight size={14} />
-            </button>
-          ))}
-          <button
-            onClick={() => onDelete(task)}
-            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-            title="Delete"
+        {/* Footer */}
+        <div className="flex items-center justify-between ml-[22px]">
+          {task.dueDate ? (
+            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+              <Calendar size={12} />
+              {formatDate(task.dueDate)}
+            </span>
+          ) : (
+            <span />
+          )}
+
+          {/* Quick actions */}
+          <div
+            className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => e.stopPropagation()}
           >
-            <Trash2 size={14} />
-          </button>
+            {otherStatuses.map((s) => (
+              <button
+                key={s.key}
+                onClick={() => onMove(task, s.key)}
+                className="p-1 text-gray-400 hover:text-[var(--color-burgundy)] hover:bg-gray-100 dark:hover:bg-slate-700 rounded transition-colors"
+                title={`Move to ${s.label}`}
+              >
+                <ArrowRight size={14} />
+              </button>
+            ))}
+            <button
+              onClick={() => onDelete(task)}
+              className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              title="Delete"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -188,6 +201,8 @@ export default function TasksPage() {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [dragOverColumn, setDragOverColumn] = useState<Status | null>(null);
+  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
 
   /* ---- Fetch ---- */
   const fetchTasks = useCallback(async () => {
@@ -303,6 +318,61 @@ export default function TasksPage() {
     }
   };
 
+  /* ---- Drag & Drop handlers ---- */
+  const handleDragStart = (e: React.DragEvent, task: Task) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({ id: task.id, status: task.status }));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggingTaskId(task.id);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingTaskId(null);
+    setDragOverColumn(null);
+  };
+
+  const handleColumnDragOver = (e: React.DragEvent, columnKey: Status) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverColumn(columnKey);
+  };
+
+  const handleColumnDragLeave = (e: React.DragEvent) => {
+    // Only clear if we're leaving the column itself (not entering a child)
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverColumn(null);
+    }
+  };
+
+  const handleColumnDrop = async (e: React.DragEvent, newStatus: Status) => {
+    e.preventDefault();
+    setDragOverColumn(null);
+    setDraggingTaskId(null);
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+      const taskId = data.id as string;
+      const oldStatus = data.status as Status;
+
+      if (oldStatus === newStatus) return;
+
+      // Optimistic update
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
+      );
+
+      const res = await fetch(`/api/admin/tasks/${taskId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success(`Moved to ${STATUSES.find((s) => s.key === newStatus)?.label}`);
+    } catch {
+      toast.error("Failed to move task");
+      fetchTasks(); // Revert on error
+    }
+  };
+
   /* ---- Loading state ---- */
   if (loading) {
     return (
@@ -347,7 +417,13 @@ export default function TasksPage() {
         transition={{ delay: 0.1 }}
       >
         {STATUSES.map((col) => (
-          <div key={col.key} className="flex flex-col">
+          <div
+            key={col.key}
+            className="flex flex-col"
+            onDragOver={(e) => handleColumnDragOver(e, col.key)}
+            onDragLeave={handleColumnDragLeave}
+            onDrop={(e) => handleColumnDrop(e, col.key)}
+          >
             {/* Column header */}
             <div
               className={`flex items-center justify-between px-4 py-3 rounded-t-xl border-t-2 ${col.color} ${col.darkColor}`}
@@ -363,7 +439,11 @@ export default function TasksPage() {
             </div>
 
             {/* Column body */}
-            <div className="flex-1 bg-gray-50 dark:bg-slate-900/50 rounded-b-xl border border-t-0 border-gray-200 dark:border-slate-700 p-3 space-y-3 min-h-[200px]">
+            <div className={`flex-1 rounded-b-xl border border-t-0 p-3 space-y-3 min-h-[200px] transition-colors ${
+              dragOverColumn === col.key
+                ? "border-dashed border-2 border-[var(--color-burgundy)]/30 bg-[var(--color-burgundy)]/5"
+                : "bg-gray-50 dark:bg-slate-900/50 border-gray-200 dark:border-slate-700"
+            }`}>
               {grouped[col.key].length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-gray-400 dark:text-gray-600">
                   <ClipboardList size={28} className="mb-2 opacity-50" />
@@ -380,6 +460,9 @@ export default function TasksPage() {
                       setDeleteDialogOpen(true);
                     }}
                     onMove={handleMove}
+                    isDragging={draggingTaskId === task.id}
+                    onDragStart={(e) => handleDragStart(e, task)}
+                    onDragEnd={handleDragEnd}
                   />
                 ))
               )}

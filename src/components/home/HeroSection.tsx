@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 
 const heroSlides = [
@@ -93,10 +94,13 @@ export default function HeroSection() {
 
       {/* Background image */}
       <div className="absolute inset-0">
-        <img
+        <Image
           src="/images/gallery/academy-building.jpg"
           alt=""
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
       </div>
 

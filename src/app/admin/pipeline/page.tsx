@@ -125,107 +125,120 @@ function PipelineCard({
   registration,
   onOpenDetail,
   onStatusChange,
+  isDragging,
+  onDragStart,
+  onDragEnd,
 }: {
   registration: Registration;
   onOpenDetail: (reg: Registration) => void;
   onStatusChange: (reg: Registration, status: PipelineStatus) => void;
+  isDragging?: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: () => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
-    <motion.div
-      variants={cardVariants}
-      layout
-      className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-      onClick={() => onOpenDetail(registration)}
+    <div
+      draggable
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={isDragging ? "opacity-50" : ""}
     >
-      {/* Name */}
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-full bg-[var(--color-burgundy)]/10 dark:bg-[var(--color-burgundy)]/20 flex items-center justify-center flex-shrink-0">
-            <User size={14} className="text-[var(--color-burgundy)]" />
+      <motion.div
+        variants={cardVariants}
+        layout
+        className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+        onClick={() => onOpenDetail(registration)}
+      >
+        {/* Name */}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-[var(--color-burgundy)]/10 dark:bg-[var(--color-burgundy)]/20 flex items-center justify-center flex-shrink-0">
+              <User size={14} className="text-[var(--color-burgundy)]" />
+            </div>
+            <p className="font-semibold text-sm text-gray-900 dark:text-white truncate">
+              {registration.firstName} {registration.lastName}
+            </p>
           </div>
-          <p className="font-semibold text-sm text-gray-900 dark:text-white truncate">
-            {registration.firstName} {registration.lastName}
-          </p>
+
+          {/* Status dropdown */}
+          <div className="relative flex-shrink-0">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDropdownOpen(!dropdownOpen);
+              }}
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              title="Change status"
+            >
+              <ChevronDown size={14} />
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <>
+                  {/* Backdrop to close dropdown */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDropdownOpen(false);
+                    }}
+                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 py-1 z-50"
+                  >
+                    {STATUS_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStatusChange(registration, opt.value);
+                          setDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${
+                          registration.status === opt.value
+                            ? "bg-[var(--color-burgundy)]/10 text-[var(--color-burgundy)] font-medium"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
-        {/* Status dropdown */}
-        <div className="relative flex-shrink-0">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setDropdownOpen(!dropdownOpen);
-            }}
-            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-            title="Change status"
-          >
-            <ChevronDown size={14} />
-          </button>
-
-          <AnimatePresence>
-            {dropdownOpen && (
-              <>
-                {/* Backdrop to close dropdown */}
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDropdownOpen(false);
-                  }}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 top-full mt-1 w-36 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 py-1 z-50"
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStatusChange(registration, opt.value);
-                        setDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-sm transition-colors ${
-                        registration.status === opt.value
-                          ? "bg-[var(--color-burgundy)]/10 text-[var(--color-burgundy)] font-medium"
-                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
+        {/* Phone */}
+        <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <Phone size={12} />
+          <span className="truncate">{registration.phone}</span>
         </div>
-      </div>
 
-      {/* Phone */}
-      <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 mb-1">
-        <Phone size={12} />
-        <span className="truncate">{registration.phone}</span>
-      </div>
+        {/* Program Interest */}
+        {registration.programInterest && (
+          <div className="mb-2">
+            <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--color-navy)]/10 text-[var(--color-navy)] dark:bg-[var(--color-navy)]/30 dark:text-sky-300">
+              {registration.programInterest}
+            </span>
+          </div>
+        )}
 
-      {/* Program Interest */}
-      {registration.programInterest && (
-        <div className="mb-2">
-          <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--color-navy)]/10 text-[var(--color-navy)] dark:bg-[var(--color-navy)]/30 dark:text-sky-300">
-            {registration.programInterest}
-          </span>
+        {/* Date */}
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
+          <Calendar size={12} />
+          <span>{formatDate(registration.createdAt)}</span>
         </div>
-      )}
-
-      {/* Date */}
-      <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-        <Calendar size={12} />
-        <span>{formatDate(registration.createdAt)}</span>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -238,14 +251,33 @@ function PipelineColumn({
   registrations,
   onOpenDetail,
   onStatusChange,
+  isDragOver,
+  draggingRegId,
+  onColumnDragOver,
+  onColumnDragLeave,
+  onColumnDrop,
+  onCardDragStart,
+  onCardDragEnd,
 }: {
   column: Column;
   registrations: Registration[];
   onOpenDetail: (reg: Registration) => void;
   onStatusChange: (reg: Registration, status: PipelineStatus) => void;
+  isDragOver?: boolean;
+  draggingRegId?: string | null;
+  onColumnDragOver?: (e: React.DragEvent) => void;
+  onColumnDragLeave?: (e: React.DragEvent) => void;
+  onColumnDrop?: (e: React.DragEvent) => void;
+  onCardDragStart?: (e: React.DragEvent, reg: Registration) => void;
+  onCardDragEnd?: () => void;
 }) {
   return (
-    <div className="flex flex-col min-w-[280px] max-w-[320px] flex-1">
+    <div
+      className="flex flex-col min-w-[280px] max-w-[320px] flex-1"
+      onDragOver={onColumnDragOver}
+      onDragLeave={onColumnDragLeave}
+      onDrop={onColumnDrop}
+    >
       {/* Column header */}
       <div className="flex items-center gap-2 mb-3 px-1">
         <div
@@ -260,7 +292,11 @@ function PipelineColumn({
       </div>
 
       {/* Cards container */}
-      <div className="flex-1 bg-gray-50 dark:bg-slate-900/50 rounded-xl p-2 space-y-2 min-h-[200px] overflow-y-auto max-h-[calc(100vh-320px)]">
+      <div className={`flex-1 rounded-xl p-2 space-y-2 min-h-[200px] overflow-y-auto max-h-[calc(100vh-320px)] transition-colors ${
+        isDragOver
+          ? "border-dashed border-2 border-[var(--color-burgundy)]/30 bg-[var(--color-burgundy)]/5"
+          : "bg-gray-50 dark:bg-slate-900/50"
+      }`}>
         <AnimatePresence mode="popLayout">
           <motion.div
             variants={containerVariants}
@@ -274,6 +310,9 @@ function PipelineColumn({
                 registration={reg}
                 onOpenDetail={onOpenDetail}
                 onStatusChange={onStatusChange}
+                isDragging={draggingRegId === reg.id}
+                onDragStart={onCardDragStart ? (e) => onCardDragStart(e, reg) : undefined}
+                onDragEnd={onCardDragEnd}
               />
             ))}
           </motion.div>
@@ -304,6 +343,8 @@ export default function PipelinePage() {
   const [adminNotes, setAdminNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [detailStatus, setDetailStatus] = useState<PipelineStatus>("new");
+  const [dragOverColumn, setDragOverColumn] = useState<PipelineStatus | null>(null);
+  const [draggingRegId, setDraggingRegId] = useState<string | null>(null);
 
   // -----------------------------------------------------------------------
   // Fetch
@@ -421,6 +462,51 @@ export default function PipelinePage() {
     } catch {
       toast.error("Failed to update status");
       fetchRegistrations(); // Revert on error
+    }
+  };
+
+  /* ---- Drag & Drop handlers ---- */
+  const handleDragStart = (e: React.DragEvent, reg: Registration) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({ id: reg.id, status: reg.status }));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggingRegId(reg.id);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingRegId(null);
+    setDragOverColumn(null);
+  };
+
+  const handleColumnDragOver = (e: React.DragEvent, columnId: PipelineStatus) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverColumn(columnId);
+  };
+
+  const handleColumnDragLeave = (e: React.DragEvent) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverColumn(null);
+    }
+  };
+
+  const handleColumnDrop = async (e: React.DragEvent, newStatus: PipelineStatus) => {
+    e.preventDefault();
+    setDragOverColumn(null);
+    setDraggingRegId(null);
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+      const regId = data.id as string;
+      const oldStatus = data.status as PipelineStatus;
+
+      if (oldStatus === newStatus) return;
+
+      const reg = registrations.find((r) => r.id === regId);
+      if (reg) {
+        await updateStatus(reg, newStatus);
+      }
+    } catch {
+      toast.error("Failed to move registration");
     }
   };
 
@@ -627,6 +713,13 @@ export default function PipelinePage() {
             registrations={grouped[column.id]}
             onOpenDetail={openDetail}
             onStatusChange={updateStatus}
+            isDragOver={dragOverColumn === column.id}
+            draggingRegId={draggingRegId}
+            onColumnDragOver={(e) => handleColumnDragOver(e, column.id)}
+            onColumnDragLeave={handleColumnDragLeave}
+            onColumnDrop={(e) => handleColumnDrop(e, column.id)}
+            onCardDragStart={handleDragStart}
+            onCardDragEnd={handleDragEnd}
           />
         ))}
       </motion.div>

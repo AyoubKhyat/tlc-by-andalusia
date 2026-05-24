@@ -16,16 +16,42 @@ import {
   GraduationCap,
   Zap,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import StatCard from "@/components/admin/StatCard";
 import StatusBadge from "@/components/admin/StatusBadge";
 import GlobalSearch from "@/components/admin/GlobalSearch";
 import QuickActions from "@/components/admin/QuickActions";
-import RegistrationsChart from "@/components/admin/charts/RegistrationsChart";
-import ProgramDistributionChart from "@/components/admin/charts/ProgramDistributionChart";
-import AttendanceChart from "@/components/admin/charts/AttendanceChart";
-import PerformanceChart from "@/components/admin/charts/PerformanceChart";
-import EnrollmentTrendChart from "@/components/admin/charts/EnrollmentTrendChart";
-import BookingStatsChart from "@/components/admin/charts/BookingStatsChart";
+
+const ChartSkeleton = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="w-8 h-8 border-4 border-gray-200 dark:border-slate-700 border-t-[var(--color-burgundy)] rounded-full animate-spin" />
+  </div>
+);
+
+const RegistrationsChart = dynamic(
+  () => import("@/components/admin/charts/RegistrationsChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
+const ProgramDistributionChart = dynamic(
+  () => import("@/components/admin/charts/ProgramDistributionChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
+const AttendanceChart = dynamic(
+  () => import("@/components/admin/charts/AttendanceChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
+const PerformanceChart = dynamic(
+  () => import("@/components/admin/charts/PerformanceChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
+const EnrollmentTrendChart = dynamic(
+  () => import("@/components/admin/charts/EnrollmentTrendChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
+const BookingStatsChart = dynamic(
+  () => import("@/components/admin/charts/BookingStatsChart"),
+  { ssr: false, loading: ChartSkeleton }
+);
 
 interface DashboardStats {
   totalStudents: number;

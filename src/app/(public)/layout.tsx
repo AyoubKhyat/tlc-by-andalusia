@@ -4,6 +4,7 @@ import JsonLd from "@/components/JsonLd";
 import CookieConsent from "@/components/CookieConsent";
 import BackToTop from "@/components/ui/BackToTop";
 import ChatWidget from "@/components/chatbot/ChatWidget";
+import PageTransition from "@/components/PageTransition";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -56,7 +57,9 @@ export default function PublicLayout({
       </a>
       <JsonLd data={structuredData} />
       <Navbar />
-      <main id="main-content" className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        <PageTransition>{children}</PageTransition>
+      </main>
       <Footer />
       <CookieConsent />
       <BackToTop />
